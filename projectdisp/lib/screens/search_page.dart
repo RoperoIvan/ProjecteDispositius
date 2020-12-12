@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../model/movie.dart';
+import 'movie_sheet.dart';
 
 class SearchScreen extends StatefulWidget {
   SearchScreen();
@@ -11,7 +12,8 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _controller;
   Future<List<Movie>> futureMovies;
-
+  Widget _searchTitle = Text("Search");
+  Icon _searchIcon = Icon(Icons.search);
   @override
   void initState() {
     _controller = TextEditingController();
@@ -29,16 +31,13 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search"),
-        leading: TextField(
-          controller: _controller,
-          onSubmitted: (value) {
-            setState(() {
-              futureMovies = Movie.fetchMovie(value);
-            });
-          },
-        ),
-      ),
+          title: _searchTitle,
+          leading: IconButton(
+            icon: _searchIcon,
+            onPressed: () {
+              _onSearchPressed();
+            },
+          )),
       body: FutureBuilder(
         future: futureMovies,
         builder: (context, snapshot) {
@@ -46,9 +45,37 @@ class _SearchScreenState extends State<SearchScreen> {
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Container(
-                      child: Image.network(snapshot.data[index].poster)),
+                return Card(
+                  child: InkWell(
+                    child: Container(
+                      height: 200,
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Image.network(snapshot.data[index].poster),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(snapshot.data[index].title),
+                              Text(snapshot.data[index].year),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                            builder: (context) => MovieSheet(Movie(
+                              poster: snapshot.data[index].poster,
+                              title: snapshot.data[index].title,
+                              year: snapshot.data[index].year,
+                            )),
+                          ))
+                          .then((value) {});
+                    },
+                  ),
                 );
               },
             );
@@ -58,5 +85,27 @@ class _SearchScreenState extends State<SearchScreen> {
         },
       ),
     );
+  }
+
+  _onSearchPressed() {
+    setState(() {
+      if (_searchIcon.icon == Icons.search) {
+        _searchIcon = Icon(Icons.close);
+        _searchTitle = TextField(
+          cursorColor: Colors.black,
+          style: TextStyle(fontSize: 24),
+          decoration: InputDecoration(labelText: 'Search...'),
+          controller: _controller,
+          onSubmitted: (value) {
+            setState(() {
+              futureMovies = Movie.fetchMovie(value);
+            });
+          },
+        );
+      } else {
+        _searchTitle = Text("Search");
+        _searchIcon = Icon(Icons.search);
+      }
+    });
   }
 }

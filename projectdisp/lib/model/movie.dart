@@ -25,12 +25,15 @@ class Movie {
       // then parse the JSON.
       Map<String, dynamic> rawmovies = jsonDecode(response.body);
       List<dynamic> movies = rawmovies["Search"];
-      movies.forEach((movie) {
-        moviesList.add(Movie(
-            title: movie['Title'],
-            year: movie['Year'],
-            poster: movie['Poster']));
-      });
+      if (movies != null) {
+        movies.forEach((movie) {
+          moviesList.add(Movie(
+              title: movie['Title'],
+              year: movie['Year'],
+              poster: movie['Poster']));
+        });
+      }
+
       return moviesList;
     } else {
       // If the server did not return a 200 OK response,
