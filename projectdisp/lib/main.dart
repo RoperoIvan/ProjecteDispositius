@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'customs.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'sign_in_flow/auth_state_switch.dart';
 import 'widgets/page_wrapper.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: customPurple,
       ),
       debugShowCheckedModeBanner: false,
       home: AuthStateSwitch(app: PageWrapper()),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:projectdisp/customs.dart';
 import '../screens/homescreen.dart';
 import '../screens/search_page.dart';
 import '../screens/profilescreen.dart';
@@ -19,26 +21,21 @@ class _PageWrapperState extends State<PageWrapper> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pageOptions[selectedPage],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          )
-        ],
-        currentIndex: selectedPage,
-        selectedItemColor: Colors.amber[800],
-        onTap: (index) {
-          setState(() {
-            selectedPage = index;
+      bottomNavigationBar: ConvexAppBar(
+        items:[
+      TabItem(icon: Icons.home, title: 'Home'),
+      TabItem(icon: Icons.search, title: 'Search'),
+      TabItem(icon: Icons.people, title: 'Profile'),
+      ],
+      backgroundColor: customPurple,
+      activeColor: Colors.amber,
+      //cornerRadius: 10,
+      top:-20,
+      //height: 50,
+      curveSize: 90,
+      onTap: (index) {
+        setState(() {
+          selectedPage = index;
           });
         },
       ),
