@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import '../../model/user_app.dart';
 import 'sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -112,22 +113,39 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _createUserWithEmailAndPassword({String email, String password}) {
-    FirebaseAuth.instance.createUserWithEmailAndPassword(
+    FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
       email: email,
       password: password,
-    );
+    )
+        .then((user) {
+      UserApp userApp = UserApp(
+          userName: user.user.displayName,
+          userId: user.user.uid,
+          userEmail: user.user.email);
+      Map<String, dynamic> newUser = {
+        'UserName': userApp.userName,
+        'UserId': userApp.userId,
+        'UserEmail': userApp.userEmail
+      };
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userApp.userEmail)
+          .collection('usersinfo')
+          .doc(userApp.userEmail)
+          .set(newUser);
+    });
   }
 
   // ignore: non_constant_identifier_names
   void _SignInWithEmailWithPassword({String username, String password}) async {
     try {
-      FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      FirebaseAuth.instance.signInWithEmailAndPassword(
         email: username,
         password: password,
       );
     } catch (e) {
-       _showError(e);
+      _showError(e);
     }
   }
 
@@ -154,9 +172,9 @@ class _SignInScreenState extends State<SignInScreen> {
     } else {
       message = "General Error: $error";
     }
-    
+
     ScaffoldMessenger(
-          child: SnackBar(
+      child: SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
       ),

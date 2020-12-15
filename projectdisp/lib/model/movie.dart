@@ -23,7 +23,6 @@ class Movie {
     if (response.statusCode == 200) {
       Movie pickedMovie;
       Map<String, dynamic> rawmovies = jsonDecode(response.body);
-      //List<dynamic> movies = rawmovies["Search"];
       if (rawmovies != null) {
         pickedMovie = Movie(
             title: rawmovies['Title'],

@@ -7,7 +7,7 @@ class MovieSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(movie.title)),
+        appBar: AppBar(title: Text(movie.title), ),
         body: Column(
           children: [Text(movie.title), Text(movie.year)],
         ));
