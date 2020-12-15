@@ -125,12 +125,10 @@ class _SignInScreenState extends State<SignInScreen> {
           .signInWithEmailAndPassword(
         email: username,
         password: password,
-      )
-          .catchError((e) {
-        _showError(e);
-        FirebaseAuth.instance.signOut();
-      });
-    } catch (e) {}
+      );
+    } catch (e) {
+       _showError(e);
+    }
   }
 
   void _showError(error) {
@@ -156,9 +154,12 @@ class _SignInScreenState extends State<SignInScreen> {
     } else {
       message = "General Error: $error";
     }
-    SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.red,
+    
+    ScaffoldMessenger(
+          child: SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 }

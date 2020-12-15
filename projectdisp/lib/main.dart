@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'sign_in_flow/auth_state_switch.dart';
 import 'widgets/page_wrapper.dart';
 
 Future<void> main() async {
@@ -26,8 +27,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: PageWrapper(),
       debugShowCheckedModeBanner: false,
+      home: AuthStateSwitch(app: PageWrapper()),
     );
   }
 }

@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-      body: Center(
-        child: RaisedButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text(
-              "Logout",
-            )),
-      ),
+      appBar: AppBar(title: Text("Profile"), actions: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(right: 20.0),
+          child: Center(
+            child: GestureDetector(
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+              },
+              child: Text("Logout"),
+            ),
+          ),
+        )
+      ]),
     );
   }
 }

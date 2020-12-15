@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/homescreen.dart';
 import '../screens/search_page.dart';
+import '../screens/profilescreen.dart';
 
 class PageWrapper extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class _PageWrapperState extends State<PageWrapper> {
   final _pageOptions = [
     HomeScreen(),
     SearchScreen(),
+    ProfileScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,10 @@ class _PageWrapperState extends State<PageWrapper> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           )
         ],
         currentIndex: selectedPage,
