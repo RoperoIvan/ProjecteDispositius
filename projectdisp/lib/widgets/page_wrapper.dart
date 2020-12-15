@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import '../sign_in_flow/auth_state_switch.dart';
 import '../screens/homescreen.dart';
 import '../screens/search_page.dart';
-import '../screens/profilescreen.dart';
-
 
 class PageWrapper extends StatefulWidget {
   @override
@@ -11,11 +8,10 @@ class PageWrapper extends StatefulWidget {
 }
 
 class _PageWrapperState extends State<PageWrapper> {
-  int selectedPage = 2;
+  int selectedPage = 0;
   final _pageOptions = [
     HomeScreen(),
     SearchScreen(),
-    AuthStateSwitch(app:ProfileScreen()),
   ];
   @override
   Widget build(BuildContext context) {
@@ -30,10 +26,6 @@ class _PageWrapperState extends State<PageWrapper> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
           )
         ],
         currentIndex: selectedPage,

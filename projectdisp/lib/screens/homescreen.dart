@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     _controller = TextEditingController();
-    futureMovies = Movie.fetchMovie("Batman");
+    futureMovies = Movie.fetchMovies("Batman");
     super.initState();
   }
 
@@ -64,15 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
           return CircularProgressIndicator();
         },
       ),
-      //   TextField(
-      //     controller: _controller,
-      //     onSubmitted: (value) {
-      //       setState(() {
-      //         futureMovies = fetchMovie(value);
-      //       });
-      //     },
-      //   ),
-      // ]),
     );
   }
 }

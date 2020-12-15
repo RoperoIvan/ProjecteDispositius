@@ -65,22 +65,28 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(
-                            builder: (context) => MovieSheet(Movie(
-                              poster: snapshot.data[index].poster,
-                              title: snapshot.data[index].title,
-                              year: snapshot.data[index].year,
-                            )),
-                          ))
-                          .then((value) {});
+                      Movie movie;
+                      Future<Movie> pickedMovie =
+                          Movie.fetchMovie(snapshot.data[index].title);
+                      pickedMovie.then((value) {
+                        movie = value;
+                        if (movie != null) {
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(
+                                builder: (context) => MovieSheet(movie),
+                              ))
+                              .then((value) {});
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      });
                     },
                   ),
                 );
               },
             );
           } else {
-            return ListTile();
+            return Card();
           }
         },
       ),
@@ -92,13 +98,14 @@ class _SearchScreenState extends State<SearchScreen> {
       if (_searchIcon.icon == Icons.search) {
         _searchIcon = Icon(Icons.close);
         _searchTitle = TextField(
+          autofocus: true,
           cursorColor: Colors.black,
           style: TextStyle(fontSize: 24),
           decoration: InputDecoration(labelText: 'Search...'),
           controller: _controller,
           onSubmitted: (value) {
             setState(() {
-              futureMovies = Movie.fetchMovie(value);
+              futureMovies = Movie.fetchMovies(value);
             });
           },
         );
