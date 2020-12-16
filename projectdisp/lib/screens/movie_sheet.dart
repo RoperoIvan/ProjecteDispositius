@@ -54,7 +54,34 @@ class _MovieSheetState extends State<MovieSheet> {
                 },
               ),
             ),
-            Text(_GetAverageGrade().toString()),
+            StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('films')
+                    .doc(widget.movie.title)
+                    .collection('info')
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  // Construir un widget en función de los datos
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  List<DocumentSnapshot> docs = snapshot.data.docs;
+                  if(docs.isEmpty)
+                    return Text('0.0');
+                  num i = 0;
+                  bool passRates = false;
+                  docs.forEach((element) {
+                    if (element.id == 'rates') passRates = true;
+
+                    if (!passRates) ++i;
+                  });
+                  if(docs[i].data()['Average'] != null)
+                    return Text(docs[i].data()['Average']);
+                    else  return Text('0.0');
+
+                })
           ],
         ));
   }
@@ -69,27 +96,10 @@ class _MovieSheetState extends State<MovieSheet> {
         .doc(currentUser.email)
         .collection('films')
         .doc(widget.movie.title)
-        .get()
-        .then((value) {
-      if (value.data().containsKey('Rate')) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.email)
-            .collection('films')
-            .doc(widget.movie.title)
-            .update(newRate);
-      } else {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.email)
-            .collection('films')
-            .doc(widget.movie.title)
-            .set(newRate);
-      }
-    });
+        .set(newRate);
 
     var filmRate = {
-      currentUser.email: a,
+      currentUser.uid: a,
     };
     //save into films
     FirebaseFirestore.instance
@@ -97,13 +107,14 @@ class _MovieSheetState extends State<MovieSheet> {
         .doc(widget.movie.title)
         .get()
         .then((value) {
-      if (!value.exists) {
+      if (value == null) {
         FirebaseFirestore.instance
             .collection('films')
             .doc(widget.movie.title)
             .collection('info')
             .doc('rates')
             .set(filmRate);
+        SetAverage();
       } else {
         FirebaseFirestore.instance
             .collection('films')
@@ -112,7 +123,7 @@ class _MovieSheetState extends State<MovieSheet> {
             .doc('rates')
             .get()
             .then((value) {
-          if (value.data().containsKey('Rate')) {
+          if (value.exists) {
             FirebaseFirestore.instance
                 .collection('films')
                 .doc(widget.movie.title)
@@ -127,31 +138,43 @@ class _MovieSheetState extends State<MovieSheet> {
                 .doc('rates')
                 .set(filmRate);
           }
+          SetAverage();
         });
       }
     });
   }
 
-  num _GetAverageGrade(){
-  num grade = 0.0;
+  void SetAverage() {
+    num grade = 0.0;
     FirebaseFirestore.instance
         .collection('films')
         .doc(widget.movie.title)
         .collection('info')
         .doc('rates')
         .get()
-        .then(
-          (value){
-            if (value.exists) {
-              Map<String, dynamic> map = value.data();
-              map.forEach((key, val) {
-                num x = num.parse(val);
-                grade += x;
-              });
-              grade = grade / map.length;
-              return grade;
-            }
-          });
-    return grade;
+        .then((value) {
+      if (value.exists) {
+        Map<String, dynamic> map = value.data();
+        map.forEach((key, val) {
+          if (key != 'Average') {
+            num x = num.parse(val);
+            grade += x;
+          }
+        });
+        if(map.length > 1)
+          grade = grade / (map.length - 1);
+        else
+         grade = grade / map.length;
+
+        var average = {'Average': grade.toString()};
+
+        FirebaseFirestore.instance
+            .collection('films')
+            .doc(widget.movie.title)
+            .collection('info')
+            .doc('rates')
+            .update(average);
+      }
+    });
   }
 }
