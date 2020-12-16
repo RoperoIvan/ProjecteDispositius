@@ -7,11 +7,23 @@ import 'sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
-  _SignInScreenState createState() => _SignInScreenState();
+  UserApp user;
+  SignInScreen({UserApp user})
+  {
+    this.user = user;
+  }
+
+  _SignInScreenState createState() => _SignInScreenState(user: user);
 }
 
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _username, _password;
+  UserApp userApp;
+
+  _SignInScreenState({@required UserApp user})
+  {
+    userApp = user;
+  }
 
   @override
   void initState() {
@@ -119,7 +131,7 @@ class _SignInScreenState extends State<SignInScreen> {
       password: password,
     )
         .then((user) {
-      UserApp userApp = UserApp(
+      userApp = UserApp(
           userName: user.user.displayName,
           userId: user.user.uid,
           userEmail: user.user.email);

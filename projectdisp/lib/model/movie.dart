@@ -6,16 +6,12 @@ class Movie {
   final String title;
   final String year;
   final String poster;
+  final String baseRate;
 
-  Movie({this.title, this.year, this.poster});
 
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return Movie(
-      title: json['Title'],
-      year: json['Year'],
-      poster: json['Poster'],
-    );
-  }
+  Movie({this.title, this.year, this.poster, this.baseRate});
+
+  
   static Future<Movie> fetchMovie(String title) async { //This is to get full info of an specific movie
     final response =
         await http.get('https://www.omdbapi.com/?t=$title&apikey=d2c50466');
@@ -27,7 +23,8 @@ class Movie {
         pickedMovie = Movie(
             title: rawmovies['Title'],
             year: rawmovies['Year'],
-            poster: rawmovies['Poster']);
+            poster: rawmovies['Poster'],
+            baseRate: rawmovies['imdbRating']);
       }
       return pickedMovie;
     } else {
