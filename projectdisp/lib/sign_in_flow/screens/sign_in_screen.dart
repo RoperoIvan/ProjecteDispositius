@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:projectdisp/customs.dart';
 import '../../model/user_app.dart';
 import 'sign_up_screen.dart';
 
@@ -53,7 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Icon(
                 Icons.person,
                 size: 120,
-                color: Theme.of(context).primaryColor,
+                color: Colors.amber,
               ),
               TextField(
                 controller: _username,
@@ -83,7 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     "Create Account",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Theme.of(context).primaryColor,
+                      color: Colors.amber,
                     ),
                   ),
                   onTap: () {
@@ -100,14 +101,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   }),
               SizedBox(height: 30),
               FlatButton(
-                color: Theme.of(context).primaryColor,
+                color: Colors.amber,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  ),
                 height: 50,
                 child: Text(
                   'Sign-in',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: customViolet,
                   ),
                 ),
                 onPressed: () {

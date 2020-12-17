@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projectdisp/customs.dart';
 
 class EmailAndPassword {
   String email, password;
@@ -42,7 +43,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'Sign Up',
                 style: TextStyle(
                   fontSize: 24,
-                  color: Theme.of(context).primaryColor,
+                  color: customViolet[50],
                 ),
               ),
               SizedBox(height: 30),
@@ -70,13 +71,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 20),
               FlatButton(
                 height: 50,
-                color: Theme.of(context).primaryColor,
+                color: Colors.amber,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  ),
                 child: Text(
                   'Register',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: customViolet,
                   ),
                 ),
                 onPressed: () {
