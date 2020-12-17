@@ -59,7 +59,7 @@ class _MovieSheetState extends State<MovieSheet> {
             StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('films')
-                    .doc(widget.movie.title)
+                    .doc(widget.movie.id)
                     .collection('info')
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -92,7 +92,7 @@ class _MovieSheetState extends State<MovieSheet> {
                     .collection('users')
                     .doc(currentUser.email)
                     .collection('films')
-                    .doc(widget.movie.title)
+                    .doc(widget.movie.id)
                     .update(favourite);
                 setState(() {
                   _favourite = value;
@@ -112,7 +112,7 @@ class _MovieSheetState extends State<MovieSheet> {
         .collection('users')
         .doc(currentUser.email)
         .collection('films')
-        .doc(widget.movie.title)
+        .doc(widget.movie.id)
         .get()
         .then((value) {
       if (value.exists) {
@@ -120,14 +120,14 @@ class _MovieSheetState extends State<MovieSheet> {
             .collection('users')
             .doc(currentUser.email)
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .update(newRate);
       } else {
         FirebaseFirestore.instance
             .collection('users')
             .doc(currentUser.email)
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .set(newRate);
       }
     });
@@ -144,7 +144,7 @@ class _MovieSheetState extends State<MovieSheet> {
       if (value == null) {
         FirebaseFirestore.instance
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .collection('info')
             .doc('rates')
             .set(filmRate);
@@ -152,7 +152,7 @@ class _MovieSheetState extends State<MovieSheet> {
       } else {
         FirebaseFirestore.instance
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .collection('info')
             .doc('rates')
             .get()
@@ -160,14 +160,14 @@ class _MovieSheetState extends State<MovieSheet> {
           if (value.exists) {
             FirebaseFirestore.instance
                 .collection('films')
-                .doc(widget.movie.title)
+                .doc(widget.movie.id)
                 .collection('info')
                 .doc('rates')
                 .update(filmRate);
           } else {
             FirebaseFirestore.instance
                 .collection('films')
-                .doc(widget.movie.title)
+                .doc(widget.movie.id)
                 .collection('info')
                 .doc('rates')
                 .set(filmRate);
@@ -182,7 +182,7 @@ class _MovieSheetState extends State<MovieSheet> {
     num grade = 0.0;
     FirebaseFirestore.instance
         .collection('films')
-        .doc(widget.movie.title)
+        .doc(widget.movie.id)
         .collection('info')
         .doc('rates')
         .get()
@@ -219,7 +219,7 @@ class _MovieSheetState extends State<MovieSheet> {
         .collection('users')
         .doc(currentUser.email)
         .collection('films')
-        .doc(widget.movie.title)
+        .doc(widget.movie.id)
         .get()
         .then((value) {
       if (!value.exists) {
@@ -228,7 +228,7 @@ class _MovieSheetState extends State<MovieSheet> {
             .collection('users')
             .doc(currentUser.email)
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .set(favourite);
       } else {
         if (value.data()['Favourite'] == null) {
@@ -237,14 +237,14 @@ class _MovieSheetState extends State<MovieSheet> {
               .collection('users')
               .doc(currentUser.email)
               .collection('films')
-              .doc(widget.movie.title)
+              .doc(widget.movie.id)
               .update(favourite);
         } else {
           FirebaseFirestore.instance
               .collection('users')
               .doc(currentUser.email)
               .collection('films')
-              .doc(widget.movie.title)
+              .doc(widget.movie.id)
               .get()
               .then((value) {
             setState(() {

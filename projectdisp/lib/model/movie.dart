@@ -8,8 +8,9 @@ class Movie {
   final String year;
   final String poster;
   final String baseRate;
+  final String id;
 
-  Movie({this.title, this.year, this.poster, this.baseRate});
+  Movie({this.title, this.year, this.poster, this.baseRate, this.id});
 
   static Future<Movie> fetchMovie(String title) async {
     //This is to get full info of an specific movie
@@ -24,7 +25,8 @@ class Movie {
             title: rawmovies['Title'],
             year: rawmovies['Year'],
             poster: rawmovies['Poster'],
-            baseRate: rawmovies['imdbRating']);
+            baseRate: rawmovies['imdbRating'],
+            id:  rawmovies['imdbID']);
       }
       return pickedMovie;
     } else {
