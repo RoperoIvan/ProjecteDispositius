@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:projectdisp/customs.dart';
+import 'package:projectdisp/custom_colors.dart';
 import '../screens/homescreen.dart';
 import '../screens/search_page.dart';
 import '../screens/profilescreen.dart';

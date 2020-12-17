@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'customs.dart';
+import 'custom_colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'sign_in_flow/auth_state_switch.dart';
 import 'widgets/page_wrapper.dart';

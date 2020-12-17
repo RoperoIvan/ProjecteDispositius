@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:projectdisp/customs.dart';
+import 'package:projectdisp/custom_colors.dart';
 
 class EmailAndPassword {
   String email, password;
