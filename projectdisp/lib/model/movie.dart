@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 class Movie {
@@ -9,11 +9,10 @@ class Movie {
   final String poster;
   final String baseRate;
 
-
   Movie({this.title, this.year, this.poster, this.baseRate});
 
-  
-  static Future<Movie> fetchMovie(String title) async { //This is to get full info of an specific movie
+  static Future<Movie> fetchMovie(String title) async {
+    //This is to get full info of an specific movie
     final response =
         await http.get('https://www.omdbapi.com/?t=$title&apikey=d2c50466');
 
@@ -33,7 +32,8 @@ class Movie {
     }
   }
 
-  static Future<List<Movie>> fetchMovies(String title) async { //This one is to get all the movies that have the title searched but does not give all the info
+  static Future<List<Movie>> fetchMovies(String title) async {
+    //This one is to get all the movies that have the title searched but does not give all the info
     final response =
         await http.get('https://www.omdbapi.com/?s=$title&apikey=d2c50466');
 

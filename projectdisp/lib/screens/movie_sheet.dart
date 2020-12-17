@@ -14,9 +14,11 @@ class MovieSheet extends StatefulWidget {
 
 class _MovieSheetState extends State<MovieSheet> {
   TextEditingController _rate;
-
+  bool _favourite;
   void initState() {
     _rate = TextEditingController();
+    _favourite = false;
+    saveFavouriteInfoInFireBase();
     super.initState();
   }
 
@@ -50,7 +52,7 @@ class _MovieSheetState extends State<MovieSheet> {
                   labelText: 'Rate',
                 ),
                 onSubmitted: (a) {
-                  _SaveInfoIntoFireBase(a);
+                  _SaveRateInfoIntoFireBase(a);
                 },
               ),
             ),
@@ -68,8 +70,7 @@ class _MovieSheetState extends State<MovieSheet> {
                     );
                   }
                   List<DocumentSnapshot> docs = snapshot.data.docs;
-                  if(docs.isEmpty)
-                    return Text('0.0');
+                  if (docs.isEmpty) return Text('0.0');
                   num i = 0;
                   bool passRates = false;
                   docs.forEach((element) {
@@ -77,16 +78,32 @@ class _MovieSheetState extends State<MovieSheet> {
 
                     if (!passRates) ++i;
                   });
-                  if(docs[i].data()['Average'] != null)
+                  if (docs[i].data()['Average'] != null)
                     return Text(docs[i].data()['Average']);
-                    else  return Text('0.0');
-
-                })
+                  else
+                    return Text('0.0');
+                }),
+            Checkbox(
+              value: _favourite,
+              onChanged: (value) {
+                User currentUser = FirebaseAuth.instance.currentUser;
+                var favourite = {'Favourite': value};
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(currentUser.email)
+                    .collection('films')
+                    .doc(widget.movie.title)
+                    .update(favourite);
+                setState(() {
+                  _favourite = value;
+                });
+              },
+            )
           ],
         ));
   }
 
-  void _SaveInfoIntoFireBase(String a) {
+  void _SaveRateInfoIntoFireBase(String a) {
     User currentUser = FirebaseAuth.instance.currentUser;
 
     var newRate = {'Rate': a};
@@ -96,7 +113,24 @@ class _MovieSheetState extends State<MovieSheet> {
         .doc(currentUser.email)
         .collection('films')
         .doc(widget.movie.title)
-        .set(newRate);
+        .get()
+        .then((value) {
+      if (value.exists) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.email)
+            .collection('films')
+            .doc(widget.movie.title)
+            .update(newRate);
+      } else {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.email)
+            .collection('films')
+            .doc(widget.movie.title)
+            .set(newRate);
+      }
+    });
 
     var filmRate = {
       currentUser.uid: a,
@@ -161,10 +195,10 @@ class _MovieSheetState extends State<MovieSheet> {
             grade += x;
           }
         });
-        if(map.length > 1)
+        if (map.length > 1)
           grade = grade / (map.length - 1);
         else
-         grade = grade / map.length;
+          grade = grade / map.length;
 
         var average = {'Average': grade.toString()};
 
@@ -174,6 +208,50 @@ class _MovieSheetState extends State<MovieSheet> {
             .collection('info')
             .doc('rates')
             .update(average);
+      }
+    });
+  }
+
+  void saveFavouriteInfoInFireBase() {
+    User currentUser = FirebaseAuth.instance.currentUser;
+    var favourite = {'Favourite': false};
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.email)
+        .collection('films')
+        .doc(widget.movie.title)
+        .get()
+        .then((value) {
+      if (!value.exists) {
+        //Check if document of the movie does not exists
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.email)
+            .collection('films')
+            .doc(widget.movie.title)
+            .set(favourite);
+      } else {
+        if (value.data()['Favourite'] == null) {
+          //Check if fav field exists
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.email)
+              .collection('films')
+              .doc(widget.movie.title)
+              .update(favourite);
+        } else {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.email)
+              .collection('films')
+              .doc(widget.movie.title)
+              .get()
+              .then((value) {
+            setState(() {
+              _favourite = value.data()['Favourite'];
+            });
+          });
+        }
       }
     });
   }
