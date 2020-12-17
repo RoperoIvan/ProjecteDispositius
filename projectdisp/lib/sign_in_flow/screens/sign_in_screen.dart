@@ -189,11 +189,11 @@ class _SignInScreenState extends State<SignInScreen> {
       message = "General Error: $error";
     }
 
-    //ScaffoldMessenger(
-      /*child: */SnackBar(
+    ScaffoldMessenger(
+      child: SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
-      //),
+      ),
     );
   }
 }
