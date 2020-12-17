@@ -51,7 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controller: _email,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
                   labelText: 'Email',
                 ),
@@ -63,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
                   labelText: 'Password',
                 ),
@@ -71,7 +71,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 20),
               FlatButton(
                 height: 50,
-                color: Colors.amber,
+                color: customAmber,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50),
                   ),

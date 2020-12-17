@@ -54,13 +54,13 @@ class _SignInScreenState extends State<SignInScreen> {
               Icon(
                 Icons.person,
                 size: 120,
-                color: Colors.amber,
+                color: customAmber,
               ),
               TextField(
                 controller: _username,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
                   labelText: 'Email',
                 ),
@@ -73,7 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
                   labelText: 'Password',
                 ),
@@ -84,7 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     "Create Account",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.amber,
+                      color: customAmber,
                     ),
                   ),
                   onTap: () {
@@ -101,7 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   }),
               SizedBox(height: 30),
               FlatButton(
-                color: Colors.amber,
+                color: customAmber,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50),
                   ),
@@ -189,11 +189,11 @@ class _SignInScreenState extends State<SignInScreen> {
       message = "General Error: $error";
     }
 
-    ScaffoldMessenger(
-      child: SnackBar(
+    //ScaffoldMessenger(
+      /*child: */SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
-      ),
+      //),
     );
   }
 }

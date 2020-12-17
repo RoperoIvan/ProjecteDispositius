@@ -28,7 +28,7 @@ class _PageWrapperState extends State<PageWrapper> {
       TabItem(icon: Icons.people, title: 'Profile'),
       ],
       backgroundColor: customViolet,
-      activeColor: Colors.amber,
+      activeColor: customAmber,
       //cornerRadius: 10,
       top:-20,
       //height: 50,
