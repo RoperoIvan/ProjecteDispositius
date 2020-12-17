@@ -106,6 +106,9 @@ class _SearchScreenState extends State<SearchScreen> {
           onSubmitted: (value) {
             setState(() {
               futureMovies = Movie.fetchMovies(value);
+              _controller.clear();
+              _searchTitle = Text("Search");
+              _searchIcon = Icon(Icons.search);
             });
           },
         );
