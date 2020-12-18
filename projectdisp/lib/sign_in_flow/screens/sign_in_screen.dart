@@ -139,6 +139,7 @@ class _SignInScreenState extends State<SignInScreen> {
           userName: user.user.displayName,
           userId: user.user.uid,
           userEmail: user.user.email);
+
       Map<String, dynamic> newUser = {
         'UserName': userApp.userName,
         'UserId': userApp.userId,
@@ -146,8 +147,6 @@ class _SignInScreenState extends State<SignInScreen> {
       };
       FirebaseFirestore.instance
           .collection('users')
-          .doc(userApp.userEmail)
-          .collection('usersinfo')
           .doc(userApp.userEmail)
           .set(newUser);
     });
