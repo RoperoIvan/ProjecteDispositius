@@ -32,11 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     //final db = FirebaseFirestore.instance;
     return Scaffold(
-      body:
-      CarouselSlider(
+      body:Padding(
+        padding: EdgeInsets.all(0),
+      child: CarouselSlider(
        options: CarouselOptions(
          height: 200,
          autoPlay: true,
+         aspectRatio: 16/9,
          ),
        items: [1,2,3,4,5].map((i) {
          return Builder(
@@ -47,12 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
                decoration: BoxDecoration(
                   color: customAmber
                 ),
-               //child: Text(snapshot.data[index].title)
+               child: Text('text $i', style: TextStyle(fontSize: 16.0),)
              );
             },
           );
        }).toList(),
-      )
+      ),
+      
       /*FutureBuilder(
         future: futureMovies,
         builder: (context, snapshot) {
@@ -84,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return CircularProgressIndicator();
         },
       ),*/
+      ),
     );
   }
 }

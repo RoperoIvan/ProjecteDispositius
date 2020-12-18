@@ -57,8 +57,10 @@ class _SearchScreenState extends State<SearchScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(snapshot.data[index].title),
-                              Text(snapshot.data[index].year),
+                              Text(snapshot.data[index].title,
+                              style: TextStyle(fontSize: 12)),
+                              Text(snapshot.data[index].year,
+                              style: TextStyle(fontSize: 10)),
                             ],
                           )
                         ],
