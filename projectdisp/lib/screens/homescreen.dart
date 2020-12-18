@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:projectdisp/custom_colors.dart';
 import '../model/movie.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,10 +32,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     //final db = FirebaseFirestore.instance;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("CinemaTalk"),
-      ),
-      body: FutureBuilder(
+      body:
+      CarouselSlider(
+       options: CarouselOptions(
+         height: 200,
+         autoPlay: true,
+         ),
+       items: [1,2,3,4,5].map((i) {
+         return Builder(
+            builder: (BuildContext context) {
+              return Container(
+               width: MediaQuery.of(context).size.width,
+               margin: EdgeInsets.symmetric(horizontal: 1.0),
+               decoration: BoxDecoration(
+                  color: customAmber
+                ),
+               //child: Text(snapshot.data[index].title)
+             );
+            },
+          );
+       }).toList(),
+      )
+      /*FutureBuilder(
         future: futureMovies,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -63,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           return CircularProgressIndicator();
         },
-      ),
+      ),*/
     );
   }
 }
