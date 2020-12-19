@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projectdisp/custom_colors.dart';
 import '../model/movie.dart';
 import 'movie_sheet.dart';
 
@@ -46,6 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 return Card(
+                  color: customViolet[50],
                   child: InkWell(
                     child: Container(
                       height: 200,
@@ -57,10 +59,20 @@ class _SearchScreenState extends State<SearchScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(snapshot.data[index].title,
-                              style: TextStyle(fontSize: 12)),
-                              Text(snapshot.data[index].year,
-                              style: TextStyle(fontSize: 10)),
+                              Text(
+                                snapshot.data[index].title,
+                                style: TextStyle(
+                                    color: customAmber,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                snapshot.data[index].year,
+                                style: TextStyle(
+                                    color: customAmber,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ],
                           )
                         ],
@@ -69,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onTap: () {
                       Movie movie;
                       Future<Movie> pickedMovie =
-                          Movie.fetchMovie(snapshot.data[index].title);
+                          Movie.fetchMovie(snapshot.data[index].id);
                       pickedMovie.then((value) {
                         movie = value;
                         if (movie != null) {

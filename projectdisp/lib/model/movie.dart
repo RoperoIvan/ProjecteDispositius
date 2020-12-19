@@ -31,7 +31,7 @@ class Movie {
   static Future<Movie> fetchMovie(String title) async {
     //This is to get full info of an specific movie
     final response =
-        await http.get('https://www.omdbapi.com/?t=$title&apikey=d2c50466');
+        await http.get('https://www.omdbapi.com/?i=$title&apikey=d2c50466');
     if (response.statusCode == 200) {
       Movie pickedMovie;
       Map<String, dynamic> rawmovies = jsonDecode(response.body);
@@ -55,10 +55,28 @@ class Movie {
     }
   }
 
-  static String getGenre(Movie movie) {
-    if (movie.genre.indexOf(',') == -1) return movie.genre;
+  static String cropStrings(String title, int desiredLenght,
+      {bool threeDots = false}) {
+    if (title.length > desiredLenght) {
+      if (threeDots) return title.substring(0, desiredLenght - 1) + '...';
 
-    return movie.genre.substring(0, movie.genre.indexOf(','));
+      return title.substring(0, desiredLenght - 1);
+    }
+
+    return title;
+  }
+
+  static List<String> getGenre(String genre) {
+    List<String> genres = [];
+    if (genre.indexOf(',') == -1) {
+      genres.add(genre);
+      return genres;
+    }
+    String firstGenre = genre.substring(0, genre.indexOf(','));
+    genres.add(firstGenre);
+    genres.add(genre.substring(firstGenre.length + 2, genre.length));
+
+    return genres;
   }
 
   static Future<List<Movie>> fetchMovies(String title) async {
@@ -77,6 +95,7 @@ class Movie {
           moviesList.add(Movie(
               title: movie['Title'],
               year: movie['Year'],
+              id: movie['imdbID'],
               poster: movie['Poster']));
         });
       }

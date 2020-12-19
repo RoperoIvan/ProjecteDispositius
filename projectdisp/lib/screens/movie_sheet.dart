@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:projectdisp/custom_colors.dart';
+import '../custom_colors.dart';
 import '../model/movie.dart';
 import 'rate_screen.dart';
 
@@ -18,11 +18,13 @@ class _MovieSheetState extends State<MovieSheet> {
   TextEditingController _rate;
   bool _favourite;
   Icon _favIcon;
+  List<Container> _genres;
 
   void initState() {
     _rate = TextEditingController();
     _favourite = false;
     _favIcon = Icon(Icons.favorite_border);
+    _genres = _getAllGenres(widget.movie.genre);
     saveFavouriteInfoInFireBase();
     super.initState();
   }
@@ -81,32 +83,17 @@ class _MovieSheetState extends State<MovieSheet> {
                               children: [
                                 Text(
                                   //Title
-                                  widget.movie.title,
+                                  Movie.cropStrings(widget.movie.title, 14,
+                                      threeDots: true),
                                   style: TextStyle(
                                       color: customAmber, fontSize: 35),
                                 ),
-                                Row(
-                                  //Year and Duration
-                                  children: [
-                                    Text(
-                                      widget.movie.year,
-                                      style: TextStyle(color: customAmber),
-                                    ),
-                                    SizedBox(
-                                      width: 2.5,
-                                    ),
-                                    Text(
-                                      '·',
-                                      style: TextStyle(color: customAmber),
-                                    ),
-                                    SizedBox(
-                                      width: 2.5,
-                                    ),
-                                    Text(
+                                Text(
+                                  //Year and duration
+                                  widget.movie.year +
+                                      ' · ' +
                                       widget.movie.runtime,
-                                      style: TextStyle(color: customAmber),
-                                    ),
-                                  ],
+                                  style: TextStyle(color: customAmber),
                                 ),
                               ],
                             ),
@@ -192,29 +179,14 @@ class _MovieSheetState extends State<MovieSheet> {
                           Column(
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 80,
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                      color: customAmber,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                          Movie.getGenre(widget
-                                              .movie), //Need to set all genres
-                                          style: TextStyle(
-                                            color: backgroundPurple,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: _genres,
                                   ),
                                   SizedBox(
-                                    width: 160,
+                                    width: 80,
                                   ),
                                 ],
                               ),
@@ -235,50 +207,18 @@ class _MovieSheetState extends State<MovieSheet> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              //This should be a widget
-                                              'Director:',
-                                              style: TextStyle(
-                                                color: customAmber,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 15,
-                                            ),
-                                            Text(
-                                              widget.movie.director,
-                                              style: TextStyle(
-                                                color: customAmber,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ],
+                                        MovieTeamText(
+                                          //This method has to be changed in next delivery
+                                          position: 'Director:',
+                                          name: Movie.cropStrings(
+                                              widget.movie.director, 18,
+                                              threeDots: true),
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'Writers:',
-                                              style: TextStyle(
-                                                color: customAmber,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 15,
-                                            ),
-                                            Text(
-                                              widget.movie.writers,
-                                              style: TextStyle(
-                                                color: customAmber,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ],
+                                        MovieTeamText(
+                                          position: 'Writers:',
+                                          name: Movie.cropStrings(
+                                              widget.movie.writers, 18,
+                                              threeDots: true),
                                         ),
                                         Row(
                                           crossAxisAlignment:
@@ -297,7 +237,9 @@ class _MovieSheetState extends State<MovieSheet> {
                                             ),
                                             Flexible(
                                               child: Text(
-                                                widget.movie.actors,
+                                                Movie.cropStrings(
+                                                    widget.movie.actors, 52,
+                                                    threeDots: true),
                                                 style: TextStyle(
                                                   color: customAmber,
                                                   fontSize: 16,
@@ -513,6 +455,67 @@ class _MovieSheetState extends State<MovieSheet> {
   }
 }
 
+List<Container> _getAllGenres(String genre) {
+  List<String> genres;
+  genres = Movie.getGenre(genre);
+  List<Container> genreWidgets;
+  genreWidgets = [];
+  genres.forEach((g) {
+    genreWidgets.add(Container(
+      width: 80,
+      height: 25,
+      decoration: BoxDecoration(
+        color: customAmber,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Center(
+        child: Text(g, //Need to set all genres
+            style: TextStyle(
+              color: backgroundPurple,
+              fontWeight: FontWeight.bold,
+            )),
+      ),
+    ));
+  });
+  return genreWidgets;
+}
+
+class MovieTeamText extends StatelessWidget {
+  const MovieTeamText({
+    this.position,
+    this.name,
+  });
+
+  final String position;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          position,
+          style: TextStyle(
+            color: customAmber,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(
+          width: 15,
+        ),
+        Text(
+          name,
+          style: TextStyle(
+            color: customAmber,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _AverageRate extends StatelessWidget {
   const _AverageRate({
     Key key,
@@ -537,7 +540,13 @@ class _AverageRate extends StatelessWidget {
             );
           }
           List<DocumentSnapshot> docs = snapshot.data.docs;
-          if (docs.isEmpty) return Text('0.0');
+          if (docs.isEmpty)
+            return Text('0.0',
+                style: TextStyle(
+                  color: customAmber,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ));
           num i = 0;
           bool passRates = false;
           docs.forEach((element) {
@@ -555,7 +564,12 @@ class _AverageRate extends StatelessWidget {
               ),
             );
           else
-            return Text('0.0');
+            return Text('0.0',
+                style: TextStyle(
+                  color: customAmber,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ));
         });
   }
 }
