@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:projectdisp/custom_colors.dart';
 import '../model/movie.dart';
+import 'rate_screen.dart';
 
 class MovieSheet extends StatefulWidget {
   final Movie movie;
@@ -15,9 +17,12 @@ class MovieSheet extends StatefulWidget {
 class _MovieSheetState extends State<MovieSheet> {
   TextEditingController _rate;
   bool _favourite;
+  Icon _favIcon;
+
   void initState() {
     _rate = TextEditingController();
     _favourite = false;
+    _favIcon = Icon(Icons.favorite_border);
     saveFavouriteInfoInFireBase();
     super.initState();
   }
@@ -31,75 +36,326 @@ class _MovieSheetState extends State<MovieSheet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.movie.title),
-        ),
-        body: Column(
-          children: [
-            Text(widget.movie.title),
-            Text(widget.movie.year),
-            Text(widget.movie.baseRate),
-            Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: TextField(
-                autocorrect: false,
-                controller: _rate,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(3)),
+        backgroundColor: backgroundPurple,
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Stack(children: [
+                  AspectRatio(
+                    aspectRatio: 8 / 5,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          fit: BoxFit.fitWidth,
+                          alignment: FractionalOffset.topCenter,
+                          image: Image.network(widget.movie.poster).image,
+                        ),
+                      ),
+                    ),
                   ),
-                  labelText: 'Rate',
+                  IconButton(
+                      icon: Icon(Icons.close, color: customAmber),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      })
+                ]),
+                Container(
+                  height: 80,
+                  decoration: BoxDecoration(color: customViolet[700]),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 8.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  //Title
+                                  widget.movie.title,
+                                  style: TextStyle(
+                                      color: customAmber, fontSize: 35),
+                                ),
+                                Row(
+                                  //Year and Duration
+                                  children: [
+                                    Text(
+                                      widget.movie.year,
+                                      style: TextStyle(color: customAmber),
+                                    ),
+                                    SizedBox(
+                                      width: 2.5,
+                                    ),
+                                    Text(
+                                      '·',
+                                      style: TextStyle(color: customAmber),
+                                    ),
+                                    SizedBox(
+                                      width: 2.5,
+                                    ),
+                                    Text(
+                                      widget.movie.runtime,
+                                      style: TextStyle(color: customAmber),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                                //Rate Icon
+                                icon: Icon(
+                                  Icons.star_border,
+                                  size: 40,
+                                  color: customAmber,
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        RateScreen(widget.movie),
+                                  ))
+                                      .then((value) {
+                                    _SaveRateInfoIntoFireBase(value.toString());
+                                  });
+                                }),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: _AverageRate(widget: widget),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: IconButton(
+                                icon: _favIcon,
+                                color: customAmber,
+                                iconSize: 40,
+                                onPressed: () {
+                                  User currentUser =
+                                      FirebaseAuth.instance.currentUser;
+                                  var favourite = {'Favourite': !_favourite};
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(currentUser.email)
+                                      .collection('films')
+                                      .doc(widget.movie.id)
+                                      .update(favourite);
+                                  setState(() {
+                                    _favourite = !_favourite;
+                                    if (_favourite == true)
+                                      _favIcon = Icon(Icons.favorite);
+                                    else
+                                      _favIcon = Icon(Icons.favorite_border);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                onSubmitted: (a) {
-                  _SaveRateInfoIntoFireBase(a);
-                },
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 170,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fitWidth,
+                                alignment: FractionalOffset.topCenter,
+                                image: Image.network(
+                                  widget.movie.poster,
+                                ).image,
+                              ),
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 25,
+                                    decoration: BoxDecoration(
+                                      color: customAmber,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(20)),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                          Movie.getGenre(widget
+                                              .movie), //Need to set all genres
+                                          style: TextStyle(
+                                            color: backgroundPurple,
+                                            fontWeight: FontWeight.bold,
+                                          )),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 160,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Container(
+                                  height: 120,
+                                  width: 250,
+                                  decoration: BoxDecoration(
+                                    color: customViolet[700],
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              //This should be a widget
+                                              'Director:',
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 15,
+                                            ),
+                                            Text(
+                                              widget.movie.director,
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Writers:',
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 15,
+                                            ),
+                                            Text(
+                                              widget.movie.writers,
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Actors:',
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                widget.movie.actors,
+                                                style: TextStyle(
+                                                  color: customAmber,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 150,
+                        padding: EdgeInsets.all(8),
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: customViolet[700],
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              //I know this is ugly Att: Ivan
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Storyline:',
+                                  style: TextStyle(
+                                      color: customAmber,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 1,
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              widget.movie.plot,
+                              style:
+                                  TextStyle(color: customAmber, fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('films')
-                    .doc(widget.movie.id)
-                    .collection('info')
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  // Construir un widget en función de los datos
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  List<DocumentSnapshot> docs = snapshot.data.docs;
-                  if (docs.isEmpty) return Text('0.0');
-                  num i = 0;
-                  bool passRates = false;
-                  docs.forEach((element) {
-                    if (element.id == 'rates') passRates = true;
-
-                    if (!passRates) ++i;
-                  });
-                  if (docs[i].data()['Average'] != null)
-                    return Text(docs[i].data()['Average']);
-                  else
-                    return Text('0.0');
-                }),
-            Checkbox(
-              value: _favourite,
-              onChanged: (value) {
-                User currentUser = FirebaseAuth.instance.currentUser;
-                var favourite = {'Favourite': value};
-                FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(currentUser.email)
-                    .collection('films')
-                    .doc(widget.movie.id)
-                    .update(favourite);
-                setState(() {
-                  _favourite = value;
-                });
-              },
-            )
-          ],
+          ),
         ));
   }
 
@@ -254,5 +510,52 @@ class _MovieSheetState extends State<MovieSheet> {
         }
       }
     });
+  }
+}
+
+class _AverageRate extends StatelessWidget {
+  const _AverageRate({
+    Key key,
+    @required this.widget,
+  }) : super(key: key);
+
+  final MovieSheet widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('films')
+            .doc(widget.movie.id)
+            .collection('info')
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          // Construir un widget en función de los datos
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          List<DocumentSnapshot> docs = snapshot.data.docs;
+          if (docs.isEmpty) return Text('0.0');
+          num i = 0;
+          bool passRates = false;
+          docs.forEach((element) {
+            if (element.id == 'rates') passRates = true;
+
+            if (!passRates) ++i;
+          });
+          if (docs[i].data()['Average'] != null)
+            return Text(
+              docs[i].data()['Average'],
+              style: TextStyle(
+                color: customAmber,
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          else
+            return Text('0.0');
+        });
   }
 }
