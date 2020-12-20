@@ -1,8 +1,11 @@
 ------------Pel·lícules ja valorades-------------
-
+Lilo & Stitch
+Titanic
 
 ------------Perfils ja creats amb valoracions----------------------
-
+(Ara mateix al fer l'usuari la contrasenya ha de ser de minim 6 caracters o no te l'accepta)
+a@ara.com password: 123456
+a@b.com password:  123456
 
 -------------Parts de l'aplicació implementades en aquesta primera entrega:-------------
 
