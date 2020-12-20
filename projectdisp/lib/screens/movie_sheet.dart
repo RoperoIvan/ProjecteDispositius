@@ -15,13 +15,13 @@ class MovieSheet extends StatefulWidget {
 }
 
 class _MovieSheetState extends State<MovieSheet> {
-  TextEditingController _rate;
+  num _rate;
   bool _favourite;
   Icon _favIcon;
   List<Container> _genres;
 
   void initState() {
-    _rate = TextEditingController();
+    _rate = 0.0;
     _favourite = false;
     _favIcon = Icon(Icons.favorite_border);
     _genres = _getAllGenres(widget.movie.genre);
@@ -31,7 +31,6 @@ class _MovieSheetState extends State<MovieSheet> {
 
   @override
   void dispose() {
-    _rate.dispose();
     super.dispose();
   }
 
@@ -111,6 +110,7 @@ class _MovieSheetState extends State<MovieSheet> {
                                         RateScreen(widget.movie),
                                   ))
                                       .then((value) {
+                                        _rate = value;
                                     _SaveRateInfoIntoFireBase(value.toString());
                                   });
                                 }),
@@ -447,6 +447,10 @@ class _MovieSheetState extends State<MovieSheet> {
               .then((value) {
             setState(() {
               _favourite = value.data()['Favourite'];
+              if (_favourite == true)
+                _favIcon = Icon(Icons.favorite);
+              else
+                _favIcon = Icon(Icons.favorite_border);
             });
           });
         }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:projectdisp/custom_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -44,6 +45,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: GestureDetector(
               onTap: () {
                 FirebaseAuth.instance.signOut();
+                Navigator.of(context).pop();
               },
               child: Text("Logout"),
             ),
@@ -78,9 +80,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               //nick editor
               TextField(
+                
+                style: TextStyle(color: customOrange),
                 controller: _nick,
                 decoration: InputDecoration(
-                  fillColor: Color(0xffFF006E),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(3)),
                   ),
@@ -214,11 +217,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: CircleAvatar(
         radius: 55,
         backgroundColor: Color(0xffFF006E),
-        child: FirebaseAuth.instance.currentUser.photoURL != null
+        child: _image != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.network(
-                  FirebaseAuth.instance.currentUser.photoURL,
+                child: Image.file(
+                  _image,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
@@ -276,6 +279,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() {
       _image = File(image.path);
+
     });
   }
 

@@ -60,7 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                snapshot.data[index].title,
+                                Movie.cropStrings(snapshot.data[index].title, 26,threeDots: true),
                                 style: TextStyle(
                                     color: customAmber,
                                     fontSize: 16,

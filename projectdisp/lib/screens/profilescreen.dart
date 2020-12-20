@@ -173,106 +173,117 @@ class _ProfileScreenState extends State<ProfileScreen>
                         decoration: BoxDecoration(
                           color: backgroundPurple,
                         ),
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            StreamBuilder(
-                                stream: FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(
-                                        FirebaseAuth.instance.currentUser.email)
-                                    .collection('films')
-                                    .snapshots(),
-                                builder: (context,
-                                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                                  // Construir un widget en función de los datos
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: Text('No favorite films'),
-                                    );
-                                  }
-                                  List<DocumentSnapshot> docs =
-                                      snapshot.data.docs;
-                                  if (docs.isEmpty)
-                                    return Text('No favorite films');
+                        child: Padding(
+                          padding: const EdgeInsets.all(36.0),
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              // StreamBuilder(
+                              //     stream: FirebaseFirestore.instance
+                              //         .collection('users')
+                              //         .doc(
+                              //             FirebaseAuth.instance.currentUser.email)
+                              //         .collection('films')
+                              //         .snapshots(),
+                              //     builder: (context,
+                              //         AsyncSnapshot<QuerySnapshot> snapshot) {
+                              //       // Construir un widget en función de los datos
+                              //       if (!snapshot.hasData) {
+                              //         return Center(
+                              //           child: Text('No favorite films'),
+                              //         );
+                              //       }
+                              //       List<DocumentSnapshot> docs =
+                              //           snapshot.data.docs;
+                              //       if (docs.isEmpty)
+                              //         return Center(
+                              //             child: Text(
+                              //                 'List of favorite films is empty'));
 
-                                  List<Movie> filmsID;
-                                  filmsID = [];
-                                  docs.forEach((element) {
-                                    if (element.data()['Favourite'] == true) {
-                                      Movie.fetchMovie(element.id)
-                                          .then((value) {
-                                        if (value != null)
-                                          filmsID.add(value);
-                                        else
-                                          return CircularProgressIndicator();
-                                      });
-                                    }
-                                  });
-                                  if (filmsID.isNotEmpty) {
-                                    return ListView.builder(
-                                      itemCount: filmsID.length,
-                                      itemBuilder: (context, index) {
-                                        Card(
-                                          child: InkWell(
-                                            child: Container(
-                                              height: 200,
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              padding: EdgeInsets.all(16),
-                                              child: Row(
-                                                children: [
-                                                  Image.network(
-                                                      filmsID[index].poster),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(filmsID[index].title,
-                                                          style: TextStyle(
-                                                              fontSize: 12)),
-                                                      Text(filmsID[index].year,
-                                                          style: TextStyle(
-                                                              fontSize: 10)),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            onTap: () {
-                                              Movie movie;
-                                              Future<Movie> pickedMovie =
-                                                  Movie.fetchMovie(
-                                                      filmsID[index].title);
-                                              pickedMovie.then((value) {
-                                                movie = value;
-                                                if (movie != null) {
-                                                  Navigator.of(context)
-                                                      .push(MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            MovieSheet(movie),
-                                                      ))
-                                                      .then((value) {});
-                                                } else {
-                                                  return CircularProgressIndicator();
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    return Center(child: Text('no films'));
-                                  }
-                                }),
-                            Center(
-                                child: Expanded(
-                                    child:
-                                        Container(child: Text('No comments')))),
-                          ],
+                              //       List<Movie> filmsID;
+                              //       filmsID = [];
+                              //       docs.forEach((element) {
+                              //         if (element.data()['Favourite'] == true) {
+                              //           Movie.fetchMovie(element.id).then((value){
+                              //             filmsID.add(value);
+                              //           }).whenComplete((){
+                                          
+                              //           });
+                              //         } else
+                              //           return CircularProgressIndicator();
+                              //       });
+                              //       if (filmsID.isNotEmpty) {
+                              //         return ListView.builder(
+                              //           itemCount: filmsID.length,
+                              //           itemBuilder: (context, index) {
+                              //                 Card(
+                              //                   child: InkWell(
+                              //                     child: Container(
+                              //                       height: 200,
+                              //                       width: MediaQuery.of(context)
+                              //                           .size
+                              //                           .width,
+                              //                       padding: EdgeInsets.all(16),
+                              //                       child: Row(
+                              //                         children: [
+                              //                           Image.network(
+                              //                               snapshot.data[index].poster),
+                              //                           Column(
+                              //                             crossAxisAlignment:
+                              //                                 CrossAxisAlignment
+                              //                                     .start,
+                              //                             children: [
+                              //                               Text(snapshot.data[index].title,
+                              //                                   style: TextStyle(
+                              //                                       fontSize:
+                              //                                           12)),
+                              //                               Text(snapshot.data[index].year,
+                              //                                   style: TextStyle(
+                              //                                       fontSize:
+                              //                                           10)),
+                              //                             ],
+                              //                           )
+                              //                         ],
+                              //                       ),
+                              //                     ),
+                              //                     onTap: () {
+                              //                       Movie movie;
+                              //                       Future<Movie> pickedMovie =
+                              //                           Movie.fetchMovie(
+                              //                               snapshot.data[index].title);
+                              //                       pickedMovie.then((value) {
+                              //                         movie = value;
+                              //                         if (movie != null) {
+                              //                           Navigator.of(context)
+                              //                               .push(
+                              //                                   MaterialPageRoute(
+                              //                             builder: (context) =>
+                              //                                 MovieSheet(movie),
+                              //                           ));
+                              //                         } else {
+                              //                           return CircularProgressIndicator();
+                              //                         }
+                              //                       });
+                              //                     },
+                              //                   ),
+                              //                 );                                      
+                              //           },
+                              //         );
+                              //       } else {
+                              //         return Center(
+                              //             child: Text('no films avaiable now'));
+                              //       }
+                              //     }),
+                              Center(
+                                  child: Expanded(
+                                      child:
+                                          Container(child: Text('Show favourites films not avaiable in these release. Thanks for your patience', style: TextStyle(color: Colors.white),)))),
+                              Center(
+                                  child: Expanded(
+                                      child:
+                                          Container(child: Text('Show comments not avaiable in these release. Thanks for your patience', style: TextStyle(color: Colors.white))))),
+                            ],
+                          ),
                         ),
                       ),
                     )

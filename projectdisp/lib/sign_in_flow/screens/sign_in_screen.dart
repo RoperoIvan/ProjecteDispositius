@@ -149,6 +149,8 @@ class _SignInScreenState extends State<SignInScreen> {
           .collection('users')
           .doc(userApp.userEmail)
           .set(newUser);
+      
+      FirebaseAuth.instance.currentUser.updateProfile(displayName: userApp.userEmail);
     });
   }
 

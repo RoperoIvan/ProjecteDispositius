@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body:Stack(
         children:[
       _Carousel(),
-      _Tabs(),
+     // _Tabs(),
         ],
       ),
       
