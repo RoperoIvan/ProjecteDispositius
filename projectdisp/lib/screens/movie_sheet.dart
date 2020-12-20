@@ -336,7 +336,7 @@ class _MovieSheetState extends State<MovieSheet> {
     //save into films
     FirebaseFirestore.instance
         .collection('films')
-        .doc(widget.movie.title)
+        .doc(widget.movie.id)
         .get()
         .then((value) {
       if (value == null) {
@@ -402,7 +402,7 @@ class _MovieSheetState extends State<MovieSheet> {
 
         FirebaseFirestore.instance
             .collection('films')
-            .doc(widget.movie.title)
+            .doc(widget.movie.id)
             .collection('info')
             .doc('rates')
             .update(average);

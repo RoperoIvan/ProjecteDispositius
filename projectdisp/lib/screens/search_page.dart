@@ -113,8 +113,8 @@ class _SearchScreenState extends State<SearchScreen> {
         _searchIcon = Icon(Icons.close);
         _searchTitle = TextField(
           autofocus: true,
-          cursorColor: Colors.black,
-          style: TextStyle(fontSize: 24),
+          cursorColor: customAmber[900],
+          style: TextStyle(fontSize: 24, color: customAmber),
           decoration: InputDecoration(labelText: 'Search...'),
           controller: _controller,
           onSubmitted: (value) {
