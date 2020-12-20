@@ -32,29 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     //final db = FirebaseFirestore.instance;
     return Scaffold(
-      body:Padding(
-        padding: EdgeInsets.all(0),
-      child: CarouselSlider(
-       options: CarouselOptions(
-         height: 200,
-         autoPlay: true,
-         aspectRatio: 16/9,
-         ),
-       items: [1,2,3,4,5].map((i) {
-         return Builder(
-            builder: (BuildContext context) {
-              return Container(
-               width: MediaQuery.of(context).size.width,
-               margin: EdgeInsets.symmetric(horizontal: 1.0),
-               decoration: BoxDecoration(
-                  color: customAmber
-                ),
-               child: Text('text $i', style: TextStyle(fontSize: 16.0),)
-             );
-            },
-          );
-       }).toList(),
+      body:Stack(
+        children:[
+      _Carousel(),
+      _Tabs(),
+        ],
       ),
+      
       
       /*FutureBuilder(
         future: futureMovies,
@@ -87,9 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
           return CircularProgressIndicator();
         },
       ),*/
-      ),
+      //),
     );
   }
+
 }
 // Example how to get items from fire base
 // body: StreamBuilder(
@@ -125,3 +110,61 @@ class _HomeScreenState extends State<HomeScreen> {
 //     );
 //   },
 // ),
+
+
+class _Carousel extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+      return Container(
+        child: CarouselSlider(
+        options: CarouselOptions(
+           height: 200,
+           autoPlay: true,
+           aspectRatio: 16/9,
+           ),
+        items: [1,2,3,4,5].map((i) {
+          return Builder(
+              builder: (BuildContext context) {
+                return Container(
+                 width: MediaQuery.of(context).size.width,
+                 margin: EdgeInsets.symmetric(horizontal: 1.0),
+                 decoration: BoxDecoration(
+                    color: customAmber
+                  ),
+                 child: Text('Movie $i', style: TextStyle(fontSize: 16.0),
+                 textAlign: TextAlign.center,)
+               );
+              },
+            );
+         }).toList(),
+        ),
+      ); 
+  }
+}
+
+/*class _Tabs extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Container(
+      child: DefaultTabController(
+  length: 2,
+  child: Scaffold(
+    body:TabBar(
+        tabs: [
+          Tab(),
+          Tab(),
+        ],
+      ),
+    ),
+  TabBarView(
+  children: [
+    Icon(Icons.directions_car),
+    Icon(Icons.directions_transit),
+  ],
+  ),
+),
+);
+}
+}
+*/
