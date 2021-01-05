@@ -108,23 +108,28 @@ class _MovieSheetState extends State<MovieSheet> {
                               ],
                             ),
                             IconButton(
-                                //Rate Icon
-                                icon: Icon(
-                                  Icons.star_border,
-                                  size: 40,
-                                  color: customAmber,
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        RateScreen(widget.movie),
-                                  ))
-                                      .then((value) {
-                                    _rate = value;
-                                    _saveRateInfoIntoFireBase(value.toString());
-                                  });
-                                }),
+                              icon: _favIcon,
+                              color: customAmber,
+                              iconSize: 40,
+                              onPressed: () {
+                                User currentUser =
+                                    FirebaseAuth.instance.currentUser;
+                                var favourite = {'Favourite': !_favourite};
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(currentUser.email)
+                                    .collection('films')
+                                    .doc(widget.movie.id)
+                                    .update(favourite);
+                                setState(() {
+                                  _favourite = !_favourite;
+                                  if (_favourite == true)
+                                    _favIcon = Icon(Icons.favorite);
+                                  else
+                                    _favIcon = Icon(Icons.favorite_border);
+                                });
+                              },
+                            ),
                           ],
                         ),
                         Column(
@@ -136,28 +141,24 @@ class _MovieSheetState extends State<MovieSheet> {
                             Expanded(
                               flex: 2,
                               child: IconButton(
-                                icon: _favIcon,
-                                color: customAmber,
-                                iconSize: 40,
-                                onPressed: () {
-                                  User currentUser =
-                                      FirebaseAuth.instance.currentUser;
-                                  var favourite = {'Favourite': !_favourite};
-                                  FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(currentUser.email)
-                                      .collection('films')
-                                      .doc(widget.movie.id)
-                                      .update(favourite);
-                                  setState(() {
-                                    _favourite = !_favourite;
-                                    if (_favourite == true)
-                                      _favIcon = Icon(Icons.favorite);
-                                    else
-                                      _favIcon = Icon(Icons.favorite_border);
-                                  });
-                                },
-                              ),
+                                  //Rate Icon
+                                  icon: Icon(
+                                    Icons.star_border,
+                                    size: 40,
+                                    color: customAmber,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                      builder: (context) =>
+                                          RateScreen(widget.movie),
+                                    ))
+                                        .then((value) {
+                                      _rate = value;
+                                      _saveRateInfoIntoFireBase(
+                                          value.toString());
+                                    });
+                                  }),
                             ),
                           ],
                         ),
@@ -313,25 +314,27 @@ class _MovieSheetState extends State<MovieSheet> {
                                 .push(MaterialPageRoute(
                                     builder: (context) => ReviewScreen()))
                                 .then((value) {
-                              setState(() {
-                                var newReviewItem = {
-                                  'Title': value.title,
-                                  'Description': value.body,
-                                  'Username': FirebaseAuth
-                                      .instance.currentUser.displayName,
-                                  'Photo': FirebaseAuth
-                                      .instance.currentUser.photoURL,
-                                };
-                                actualRev.add(newReviewItem);
-                                addNewReviewToDataBase(newReviewItem);
-                              });
+                              if (value != null) {
+                                setState(() {
+                                  var newReviewItem = {
+                                    'Title': value.title,
+                                    'Description': value.body,
+                                    'Username': FirebaseAuth
+                                        .instance.currentUser.displayName,
+                                    'Photo': FirebaseAuth
+                                        .instance.currentUser.photoURL,
+                                  };
+                                  actualRev.add(newReviewItem);
+                                  addNewReviewToDataBase(newReviewItem);
+                                });
+                              }
                             });
                           },
                         ),
                       ),
                       Container(
                         height: 200.0,
-                        child: ListView.builder(
+                        child: ListView.separated(
                           itemCount: actualRev.length,
                           itemBuilder: (context, index) {
                             return Container(
@@ -405,6 +408,10 @@ class _MovieSheetState extends State<MovieSheet> {
                               ),
                             );
                           },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              SizedBox(
+                            height: 10,
+                          ),
                         ),
                       )
                     ],
@@ -537,7 +544,7 @@ class _MovieSheetState extends State<MovieSheet> {
       if (value.docs.isNotEmpty) {
         for (QueryDocumentSnapshot doc in value.docs) {
           if (doc.data() != null && doc.data().isNotEmpty)
-            newReviews = doc.data()['review'];
+            newReviews.add(doc.data()['review'][0]);
         }
       }
     });
