@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../custom_colors.dart';
 import '../model/movie.dart';
+import 'review_screen.dart';
 import 'rate_screen.dart';
+import '../widgets/review_item.dart';
 
 class MovieSheet extends StatefulWidget {
   final Movie movie;
@@ -19,18 +21,27 @@ class _MovieSheetState extends State<MovieSheet> {
   bool _favourite;
   Icon _favIcon;
   List<Container> _genres;
+  Future<List<dynamic>> reviews;
+  List<dynamic> actualRev;
 
   void initState() {
     _rate = 0.0;
     _favourite = false;
     _favIcon = Icon(Icons.favorite_border);
     _genres = _getAllGenres(widget.movie.genre);
+    actualRev = [];
+    reviews = _getReviews(widget.movie.id);
+    reviews.then((value) {
+      actualRev = value;
+    });
+    //reviews = _getReviews(widget.movie.id);
     saveFavouriteInfoInFireBase();
     super.initState();
   }
 
   @override
   void dispose() {
+    _genres.clear();
     super.dispose();
   }
 
@@ -110,8 +121,8 @@ class _MovieSheetState extends State<MovieSheet> {
                                         RateScreen(widget.movie),
                                   ))
                                       .then((value) {
-                                        _rate = value;
-                                    _SaveRateInfoIntoFireBase(value.toString());
+                                    _rate = value;
+                                    _saveRateInfoIntoFireBase(value.toString());
                                   });
                                 }),
                           ],
@@ -292,6 +303,73 @@ class _MovieSheetState extends State<MovieSheet> {
                           ],
                         ),
                       ),
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        width: MediaQuery.of(context).size.width,
+                        child: ElevatedButton(
+                          child: Text("Add review"),
+                          onPressed: () {
+                            Navigator.of(context)
+                                .push(MaterialPageRoute(
+                                    builder: (context) => ReviewScreen()))
+                                .then((value) {
+                              setState(() {
+                                var newReviewItem = {
+                                  'Title': value.title,
+                                  'Description': value.body,
+                                  'Username': FirebaseAuth
+                                      .instance.currentUser.displayName,
+                                  'Photo': FirebaseAuth
+                                      .instance.currentUser.photoURL,
+                                };
+                                actualRev.add(newReviewItem);
+                                addNewReviewToDataBase(newReviewItem);
+                              });
+                            });
+                          },
+                        ),
+                      ),
+                      Container(
+                        height: 200.0,
+                        child: ListView.builder(
+                          itemCount: actualRev.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(actualRev[index]['Title']),
+                                      Text(actualRev[index]['Description']),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Container(
+                                        height: 80,
+                                        width: 80,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            fit: BoxFit.fitWidth,
+                                            alignment: FractionalOffset.center,
+                                            image: Image.network(
+                                                    actualRev[index]['Photo'])
+                                                .image,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(actualRev[index]['Username']),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -301,7 +379,7 @@ class _MovieSheetState extends State<MovieSheet> {
         ));
   }
 
-  void _SaveRateInfoIntoFireBase(String a) {
+  void _saveRateInfoIntoFireBase(String a) {
     User currentUser = FirebaseAuth.instance.currentUser;
 
     var newRate = {'Rate': a};
@@ -346,7 +424,7 @@ class _MovieSheetState extends State<MovieSheet> {
             .collection('info')
             .doc('rates')
             .set(filmRate);
-        SetAverage();
+        setAverage();
       } else {
         FirebaseFirestore.instance
             .collection('films')
@@ -370,13 +448,13 @@ class _MovieSheetState extends State<MovieSheet> {
                 .doc('rates')
                 .set(filmRate);
           }
-          SetAverage();
+          setAverage();
         });
       }
     });
   }
 
-  void SetAverage() {
+  void setAverage() {
     num grade = 0.0;
     FirebaseFirestore.instance
         .collection('films')
@@ -398,7 +476,7 @@ class _MovieSheetState extends State<MovieSheet> {
         else
           grade = grade / map.length;
 
-        var average = {'Average': grade.toString()};
+        var average = {'Average': grade.toStringAsFixed(1)};
 
         FirebaseFirestore.instance
             .collection('films')
@@ -408,6 +486,25 @@ class _MovieSheetState extends State<MovieSheet> {
             .update(average);
       }
     });
+  }
+
+  Future<List<dynamic>> _getReviews(String movieId) async {
+    User currentUser = FirebaseAuth.instance.currentUser;
+    dynamic newReviews = [];
+    await FirebaseFirestore.instance
+        .collection('films')
+        .doc(widget.movie.id)
+        .collection('reviews')
+        .get()
+        .then((value) {
+      if (value.docs.isNotEmpty) {
+        for (QueryDocumentSnapshot doc in value.docs) {
+          if (doc.data() != null && doc.data().isNotEmpty)
+            newReviews = doc.data()['review'];
+        }
+      }
+    });
+    return newReviews;
   }
 
   void saveFavouriteInfoInFireBase() {
@@ -454,6 +551,83 @@ class _MovieSheetState extends State<MovieSheet> {
             });
           });
         }
+      }
+    });
+  }
+
+  void addNewReviewToDataBase(Map<String, dynamic> newReviewItem) async {
+    User currentUser = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.email)
+        .collection('films')
+        .doc(widget.movie.id)
+        .get()
+        .then((value) {
+      if (!value.exists) {
+        //Check if document of the movie does not exists
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.email)
+            .collection('films')
+            .doc(widget.movie.id)
+            .set({
+          'Reviews': FieldValue.arrayUnion([{}])
+        });
+      } else {
+        if (value.data()['Reviews'] != null) {
+          //Check if fav field exists
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.email)
+              .collection('films')
+              .doc(widget.movie.id)
+              .update({
+            'Reviews': FieldValue.arrayUnion([newReviewItem])
+          });
+        } else {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.email)
+              .collection('films')
+              .doc(widget.movie.id)
+              .set({
+            'Reviews': FieldValue.arrayUnion([newReviewItem])
+          });
+        }
+      }
+    });
+
+    //Films server side
+    await FirebaseFirestore.instance
+        .collection('films')
+        .doc(widget.movie.id)
+        .collection('reviews')
+        .get()
+        .then((value) {
+      bool isThere = false;
+      for (QueryDocumentSnapshot doc in value.docs) {
+        if (doc.id == currentUser.uid) {
+          isThere = true;
+          FirebaseFirestore.instance
+              .collection('films')
+              .doc(widget.movie.id)
+              .collection('reviews')
+              .doc(currentUser.uid)
+              .update({
+            'review': FieldValue.arrayUnion([newReviewItem])
+          });
+        }
+      }
+      if (!isThere) {
+        FirebaseFirestore.instance
+            .collection('films')
+            .doc(widget.movie.id)
+            .collection('reviews')
+            .doc(currentUser.uid)
+            .set({
+          'review': FieldValue.arrayUnion([newReviewItem])
+        });
       }
     });
   }
