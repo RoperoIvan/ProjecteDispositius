@@ -335,36 +335,73 @@ class _MovieSheetState extends State<MovieSheet> {
                           itemCount: actualRev.length,
                           itemBuilder: (context, index) {
                             return Container(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(actualRev[index]['Title']),
-                                      Text(actualRev[index]['Description']),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Container(
-                                        height: 80,
-                                        width: 80,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                            fit: BoxFit.fitWidth,
-                                            alignment: FractionalOffset.center,
-                                            image: Image.network(
-                                                    actualRev[index]['Photo'])
-                                                .image,
+                              decoration: BoxDecoration(
+                                  color: customViolet[700],
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(16))),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          actualRev[index]['Title'],
+                                          style: TextStyle(
+                                            color: customAmber,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
                                           ),
                                         ),
-                                      ),
-                                      Text(actualRev[index]['Username']),
-                                    ],
-                                  )
-                                ],
+                                        Text(
+                                          actualRev[index]['Description'],
+                                          style: TextStyle(
+                                            color: customAmber,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Container(
+                                          height: 70,
+                                          width: 70,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                              fit: BoxFit.fitWidth,
+                                              alignment:
+                                                  FractionalOffset.center,
+                                              image: Image.network(
+                                                      actualRev[index]['Photo'])
+                                                  .image,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          actualRev[index]['Username'],
+                                          style: TextStyle(
+                                            color: customAmber,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          _rate.toString(),
+                                          style: TextStyle(
+                                            color: customAmber,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 30,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             );
                           },
