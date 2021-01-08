@@ -32,7 +32,9 @@ class _MovieSheetState extends State<MovieSheet> {
     actualRev = [];
     reviews = _getReviews(widget.movie.id);
     reviews.then((value) {
-      actualRev = value;
+      setState(() {
+        actualRev = value;
+      });
     });
     //reviews = _getReviews(widget.movie.id);
     saveFavouriteInfoInFireBase();
@@ -42,6 +44,7 @@ class _MovieSheetState extends State<MovieSheet> {
   @override
   void dispose() {
     _genres.clear();
+    actualRev.clear();
     super.dispose();
   }
 
@@ -321,6 +324,9 @@ class _MovieSheetState extends State<MovieSheet> {
                                     'Description': value.body,
                                     'Username': FirebaseAuth
                                         .instance.currentUser.displayName,
+                                    'Id': FirebaseAuth.instance.currentUser.uid,
+                                    'Email':
+                                        FirebaseAuth.instance.currentUser.email,
                                     'Photo': FirebaseAuth
                                         .instance.currentUser.photoURL,
                                   };
@@ -337,6 +343,9 @@ class _MovieSheetState extends State<MovieSheet> {
                         child: ListView.separated(
                           itemCount: actualRev.length,
                           itemBuilder: (context, index) {
+                            if (actualRev.length == 0) {
+                              return CircularProgressIndicator();
+                            }
                             return Container(
                               decoration: BoxDecoration(
                                   color: customViolet[700],
@@ -344,65 +353,74 @@ class _MovieSheetState extends State<MovieSheet> {
                                       BorderRadius.all(Radius.circular(16))),
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: Column(
                                   children: [
-                                    Column(
+                                    Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          actualRev[index]['Title'],
-                                          style: TextStyle(
-                                            color: customAmber,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              actualRev[index]['Title'],
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            Text(
+                                              actualRev[index]['Description'],
+                                              style: TextStyle(
+                                                color: customAmber,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          actualRev[index]['Description'],
-                                          style: TextStyle(
-                                            color: customAmber,
-                                          ),
-                                        ),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              height: 70,
+                                              width: 70,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  fit: BoxFit.fitWidth,
+                                                  alignment:
+                                                      FractionalOffset.center,
+                                                  image: Image.network(
+                                                          actualRev[index]
+                                                              ['Photo'])
+                                                      .image,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              actualRev[index]['Username'],
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              _rate.toString(),
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30,
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
-                                    Column(
-                                      children: [
-                                        Container(
-                                          height: 70,
-                                          width: 70,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                              fit: BoxFit.fitWidth,
-                                              alignment:
-                                                  FractionalOffset.center,
-                                              image: Image.network(
-                                                      actualRev[index]['Photo'])
-                                                  .image,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          actualRev[index]['Username'],
-                                          style: TextStyle(
-                                            color: customAmber,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          _rate.toString(),
-                                          style: TextStyle(
-                                            color: customAmber,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 30,
-                                          ),
-                                        ),
-                                      ],
-                                    )
+                                    Row(
+                                      children: [],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -533,8 +551,8 @@ class _MovieSheetState extends State<MovieSheet> {
   }
 
   Future<List<dynamic>> _getReviews(String movieId) async {
-    User currentUser = FirebaseAuth.instance.currentUser;
-    dynamic newReviews = [];
+    //User currentUser = FirebaseAuth.instance.currentUser;
+    List<Map<String, dynamic>> newReviews = [];
     await FirebaseFirestore.instance
         .collection('films')
         .doc(widget.movie.id)
@@ -543,8 +561,13 @@ class _MovieSheetState extends State<MovieSheet> {
         .then((value) {
       if (value.docs.isNotEmpty) {
         for (QueryDocumentSnapshot doc in value.docs) {
-          if (doc.data() != null && doc.data().isNotEmpty)
-            newReviews.add(doc.data()['review'][0]);
+          if (doc.data() != null && doc.data().isNotEmpty) {
+            for (Map<String, dynamic> review in doc.data()['review']) {
+              newReviews.add(review);
+            }
+          }
+
+          print("yes");
         }
       }
     });
@@ -616,7 +639,9 @@ class _MovieSheetState extends State<MovieSheet> {
             .collection('films')
             .doc(widget.movie.id)
             .set({
-          'Reviews': FieldValue.arrayUnion([{}])
+          'Reviews': FieldValue.arrayUnion([
+            [newReviewItem]
+          ])
         });
       } else {
         if (value.data()['Reviews'] != null) {
