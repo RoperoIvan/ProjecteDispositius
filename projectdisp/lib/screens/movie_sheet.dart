@@ -315,10 +315,21 @@ class _MovieSheetState extends State<MovieSheet> {
                           onPressed: () {
                             Navigator.of(context)
                                 .push(MaterialPageRoute(
-                                    builder: (context) => ReviewScreen()))
+                                    builder: (context) =>
+                                        ReviewScreen(movie: widget.movie)))
                                 .then((value) {
                               if (value != null) {
                                 setState(() {
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(FirebaseAuth
+                                          .instance.currentUser.email)
+                                      .collection('films')
+                                      .doc(widget.movie.id)
+                                      .get()
+                                      .then((value) =>
+                                          _rate = value.data()['Rate']);
+
                                   var newReviewItem = {
                                     'Title': value.title,
                                     'Description': value.body,
@@ -329,6 +340,7 @@ class _MovieSheetState extends State<MovieSheet> {
                                         FirebaseAuth.instance.currentUser.email,
                                     'Photo': FirebaseAuth
                                         .instance.currentUser.photoURL,
+                                    'Rate': value.rate,
                                   };
                                   actualRev.add(newReviewItem);
                                   addNewReviewToDataBase(newReviewItem);
@@ -407,7 +419,8 @@ class _MovieSheetState extends State<MovieSheet> {
                                               ),
                                             ),
                                             Text(
-                                              _rate.toString(),
+                                              actualRev[index]['Rate']
+                                                  .toString(),
                                               style: TextStyle(
                                                 color: customAmber,
                                                 fontWeight: FontWeight.bold,
@@ -566,8 +579,6 @@ class _MovieSheetState extends State<MovieSheet> {
               newReviews.add(review);
             }
           }
-
-          print("yes");
         }
       }
     });
