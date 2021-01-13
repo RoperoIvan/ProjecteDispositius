@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   TickerProvider selectedPage;
 
   TabController _tabController;
+  List<Future<Movie>> futureMovies;
 
   final _pageOptions = [
     HomeScreen(),
@@ -44,12 +45,37 @@ class _ProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: _pageOptions.length);
+    futureMovies = _getFavMovies();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  List<Future<Movie>> _getFavMovies() {
+    List<Future<Movie>> fMovies = [];
+    Stream<QuerySnapshot> snapshot = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.email)
+        .collection('films')
+        .snapshots();
+
+    snapshot.forEach((element) {
+      List<DocumentSnapshot> docs = element.docs;
+      if (docs.length == 0) return null;
+      setState(() {
+        docs.forEach(
+          (element) {
+            if (element.data()['Favourite'] == true) {
+              fMovies.add(Movie.fetchMovie(element.id));
+            }
+          },
+        );
+      });
+    });
+    return fMovies;
   }
 
   @override
@@ -178,110 +204,106 @@ class _ProfileScreenState extends State<ProfileScreen>
                           child: TabBarView(
                             controller: _tabController,
                             children: [
-                              // StreamBuilder(
-                              //     stream: FirebaseFirestore.instance
-                              //         .collection('users')
-                              //         .doc(
-                              //             FirebaseAuth.instance.currentUser.email)
-                              //         .collection('films')
-                              //         .snapshots(),
-                              //     builder: (context,
-                              //         AsyncSnapshot<QuerySnapshot> snapshot) {
-                              //       // Construir un widget en función de los datos
-                              //       if (!snapshot.hasData) {
-                              //         return Center(
-                              //           child: Text('No favorite films'),
-                              //         );
-                              //       }
-                              //       List<DocumentSnapshot> docs =
-                              //           snapshot.data.docs;
-                              //       if (docs.isEmpty)
-                              //         return Center(
-                              //             child: Text(
-                              //                 'List of favorite films is empty'));
-
-                              //       List<Movie> filmsID;
-                              //       filmsID = [];
-                              //       docs.forEach((element) {
-                              //         if (element.data()['Favourite'] == true) {
-                              //           Movie.fetchMovie(element.id).then((value){
-                              //             filmsID.add(value);
-                              //           }).whenComplete((){
-                                          
-                              //           });
-                              //         } else
-                              //           return CircularProgressIndicator();
-                              //       });
-                              //       if (filmsID.isNotEmpty) {
-                              //         return ListView.builder(
-                              //           itemCount: filmsID.length,
-                              //           itemBuilder: (context, index) {
-                              //                 Card(
-                              //                   child: InkWell(
-                              //                     child: Container(
-                              //                       height: 200,
-                              //                       width: MediaQuery.of(context)
-                              //                           .size
-                              //                           .width,
-                              //                       padding: EdgeInsets.all(16),
-                              //                       child: Row(
-                              //                         children: [
-                              //                           Image.network(
-                              //                               snapshot.data[index].poster),
-                              //                           Column(
-                              //                             crossAxisAlignment:
-                              //                                 CrossAxisAlignment
-                              //                                     .start,
-                              //                             children: [
-                              //                               Text(snapshot.data[index].title,
-                              //                                   style: TextStyle(
-                              //                                       fontSize:
-                              //                                           12)),
-                              //                               Text(snapshot.data[index].year,
-                              //                                   style: TextStyle(
-                              //                                       fontSize:
-                              //                                           10)),
-                              //                             ],
-                              //                           )
-                              //                         ],
-                              //                       ),
-                              //                     ),
-                              //                     onTap: () {
-                              //                       Movie movie;
-                              //                       Future<Movie> pickedMovie =
-                              //                           Movie.fetchMovie(
-                              //                               snapshot.data[index].title);
-                              //                       pickedMovie.then((value) {
-                              //                         movie = value;
-                              //                         if (movie != null) {
-                              //                           Navigator.of(context)
-                              //                               .push(
-                              //                                   MaterialPageRoute(
-                              //                             builder: (context) =>
-                              //                                 MovieSheet(movie),
-                              //                           ));
-                              //                         } else {
-                              //                           return CircularProgressIndicator();
-                              //                         }
-                              //                       });
-                              //                     },
-                              //                   ),
-                              //                 );                                      
-                              //           },
-                              //         );
-                              //       } else {
-                              //         return Center(
-                              //             child: Text('no films avaiable now'));
-                              //       }
-                              //     }),
+                              ListView.builder(
+                                  itemCount: futureMovies.length,
+                                  itemBuilder: (context, index) {
+                                    return FutureBuilder(
+                                        future: futureMovies[index],
+                                        builder: (c, s) {
+                                          if (futureMovies.isEmpty) {
+                                            return Center(
+                                                child: Container(
+                                                    child: Text(
+                                                        'Show favs not avaiable in these release. Thanks for your patience',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .white))));
+                                          } else {
+                                            return Container(
+                                              child: s.data == null
+                                                  ? Container()
+                                                  : Card(
+                                                      color: customViolet[50],
+                                                      child: InkWell(
+                                                        child: Container(
+                                                          height: 200,
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  16),
+                                                          child: Row(
+                                                            children: [
+                                                              Image.network(s
+                                                                  .data.poster),
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    Movie.cropStrings(
+                                                                        s.data
+                                                                            .title,
+                                                                        26,
+                                                                        threeDots:
+                                                                            true),
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            customAmber,
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                  Text(
+                                                                    s.data.year,
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            customAmber,
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        onTap: () {
+                                                          Movie movie = s.data;
+                                                            if (movie != null) {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .push(
+                                                                      MaterialPageRoute(
+                                                                    builder: (context) =>
+                                                                        MovieSheet(
+                                                                            movie),
+                                                                  ))
+                                                                  .then(
+                                                                      (value) {});
+                                                            } else {
+                                                              return CircularProgressIndicator();
+                                                            }
+                                                         
+                                                        },
+                                                      ),
+                                                    ),
+                                            );
+                                          }
+                                        });
+                                  }),
                               Center(
                                   child: Expanded(
-                                      child:
-                                          Container(child: Text('Show favourites films not avaiable in these release. Thanks for your patience', style: TextStyle(color: Colors.white),)))),
-                              Center(
-                                  child: Expanded(
-                                      child:
-                                          Container(child: Text('Show comments not avaiable in these release. Thanks for your patience', style: TextStyle(color: Colors.white))))),
+                                      child: Container(
+                                          child: Text(
+                                              'Show comments not avaiable in these release. Thanks for your patience',
+                                              style: TextStyle(
+                                                  color: Colors.white))))),
                             ],
                           ),
                         ),
