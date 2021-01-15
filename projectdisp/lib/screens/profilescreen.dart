@@ -7,6 +7,7 @@ import 'homescreen.dart';
 import 'editProfileScreen.dart';
 import 'search_page.dart';
 import '../model/movie.dart';
+import '../model/review.dart';
 import 'movie_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -21,6 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   TabController _tabController;
   List<Future<Movie>> futureMovies;
+  Future<List<Map<String, dynamic>>> futureReviews;
+  List<Map<String, dynamic>> reviews;
 
   final _pageOptions = [
     HomeScreen(),
@@ -45,12 +48,19 @@ class _ProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: _pageOptions.length);
+    reviews = [];
     futureMovies = _getFavMovies();
+    futureReviews = _getReviews();
+    futureReviews.then((value) {
+      reviews = value;
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    futureMovies.clear();
+    reviews.clear();
     super.dispose();
   }
 
@@ -275,21 +285,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                         ),
                                                         onTap: () {
                                                           Movie movie = s.data;
-                                                            if (movie != null) {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .push(
-                                                                      MaterialPageRoute(
-                                                                    builder: (context) =>
-                                                                        MovieSheet(
-                                                                            movie),
-                                                                  ))
-                                                                  .then(
-                                                                      (value) {});
-                                                            } else {
-                                                              return CircularProgressIndicator();
-                                                            }
-                                                         
+                                                          if (movie != null) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .push(
+                                                                    MaterialPageRoute(
+                                                                  builder: (context) =>
+                                                                      MovieSheet(
+                                                                          movie),
+                                                                ))
+                                                                .then(
+                                                                    (value) {});
+                                                          } else {
+                                                            return CircularProgressIndicator();
+                                                          }
                                                         },
                                                       ),
                                                     ),
@@ -297,13 +306,118 @@ class _ProfileScreenState extends State<ProfileScreen>
                                           }
                                         });
                                   }),
-                              Center(
-                                  child: Expanded(
-                                      child: Container(
-                                          child: Text(
-                                              'Show comments not avaiable in these release. Thanks for your patience',
-                                              style: TextStyle(
-                                                  color: Colors.white))))),
+
+                              Container(
+                                height: 200.0,
+                                child: ListView.separated(
+                                  itemCount: reviews.length,
+                                  itemBuilder: (context, index) {
+                                    if (reviews.length == 0) {
+                                      return CircularProgressIndicator();
+                                    }
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          color: customViolet[700],
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(16))),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      reviews[index]['Title'],
+                                                      style: TextStyle(
+                                                        color: customAmber,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      reviews[index]
+                                                          ['Description'],
+                                                      style: TextStyle(
+                                                        color: customAmber,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Container(
+                                                      height: 70,
+                                                      width: 70,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        image: DecorationImage(
+                                                          fit: BoxFit.fitWidth,
+                                                          alignment:
+                                                              FractionalOffset
+                                                                  .center,
+                                                          image: Image.network(
+                                                                  reviews[index]
+                                                                      ['Photo'])
+                                                              .image,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      reviews[index]
+                                                          ['Username'],
+                                                      style: TextStyle(
+                                                        color: customAmber,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      reviews[index]['Rate']
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                        color: customAmber,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 30,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          SizedBox(
+                                    height: 10,
+                                  ),
+                                ),
+                              )
+
+                              // Center(
+                              //     child: Expanded(
+                              //         child: Container(
+                              //             child: Text(
+                              //                 'Show comments not avaiable in these release. Thanks for your patience',
+                              //                 style: TextStyle(
+                              //                     color: Colors.white))))),
                             ],
                           ),
                         ),
@@ -324,5 +438,33 @@ class _ProfileScreenState extends State<ProfileScreen>
       tabs: myTabs,
       controller: _tabController,
     );
+  }
+
+  Future<List<Map<String, dynamic>>> _getReviews() async {
+    List<Map<String, dynamic>> newReviews = [];
+    Stream<QuerySnapshot> snapshot = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.email)
+        .collection('films')
+        .snapshots();
+    //User currentUser = FirebaseAuth.instance.currentUser;
+    snapshot.forEach((element) {
+      List<DocumentSnapshot> docs = element.docs;
+      if (docs.length == 0) return null;
+      setState(() {
+        docs.forEach(
+          (el) {
+           if(el.data().isNotEmpty && el.data()['Reviews'] != null)
+           {
+              for (Map<String, dynamic> review in el.data()['Reviews']) {
+                newReviews.add(review);
+              }
+             }  //fMovies.add(Movie.fetchMovie(element.id));
+            
+          },
+        );
+      });
+    });
+    return newReviews;
   }
 }
