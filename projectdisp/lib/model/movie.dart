@@ -28,10 +28,37 @@ class Movie {
       this.actors,
       this.runtime});
 
-  static Future<Movie> fetchMovie(String title) async {
+  static Future<Movie> fetchMovie(String id) async {
     //This is to get full info of an specific movie
     final response =
-        await http.get('https://www.omdbapi.com/?i=$title&apikey=d2c50466');
+        await http.get('https://www.omdbapi.com/?i=$id&apikey=d2c50466');
+    if (response.statusCode == 200) {
+      Movie pickedMovie;
+      Map<String, dynamic> rawmovies = jsonDecode(response.body);
+      if (rawmovies != null) {
+        pickedMovie = Movie(
+            title: rawmovies['Title'],
+            year: rawmovies['Year'],
+            poster: rawmovies['Poster'],
+            baseRate: rawmovies['imdbRating'],
+            id: rawmovies['imdbID'],
+            plot: rawmovies['Plot'],
+            genre: rawmovies['Genre'],
+            director: rawmovies['Director'],
+            writers: rawmovies['Writer'],
+            actors: rawmovies['Actors'],
+            runtime: rawmovies['Runtime']);
+      }
+      return pickedMovie;
+    } else {
+      throw Exception('Failed to load movies');
+    }
+  }
+
+  static Future<Movie> fetchMovieByTitle(String title) async {
+    //This is to get full info of an specific movie
+    final response =
+        await http.get('https://www.omdbapi.com/?t=$title&apikey=d2c50466');
     if (response.statusCode == 200) {
       Movie pickedMovie;
       Map<String, dynamic> rawmovies = jsonDecode(response.body);

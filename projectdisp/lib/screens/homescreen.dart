@@ -1,9 +1,12 @@
-import 'dart:async';
+//import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:projectdisp/custom_colors.dart';
 import '../model/movie.dart';
+import 'movie_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen();
@@ -13,158 +16,200 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController _controller;
-  Future<List<Movie>> futureMovies;
-
+  List<Future<Movie>> futureMovies;
+  List<Future<Movie>> topRatedMovies;
+  SliverGridDelegate delegate;
   @override
   void initState() {
     _controller = TextEditingController();
-    futureMovies = Movie.fetchMovies("Batman");
+    futureMovies = [];
+    //topRatedMovies = [];
+    futureMovies = getCarrouselMovies();
+    topRatedMovies = _getTopMovies();
     super.initState();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    futureMovies.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    //final db = FirebaseFirestore.instance;
     return Scaffold(
-      body:Stack(
-        children:[
-      _Carousel(),
-     // _Tabs(),
-        ],
-      ),
-      
-      
-      /*FutureBuilder(
-        future: futureMovies,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              child: CarouselSlider(
+                options: CarouselOptions(
+                  height: 200,
+                  autoPlay: true,
+                  aspectRatio: 16 / 9,
+                ),
+                items: [0, 1, 2, 3, 4].map((i) {
+                  if (futureMovies.isNotEmpty) {
+                    return FutureBuilder(
+                      future: futureMovies[i],
+                      builder: (context, s) {
+                        if (s.data != null) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.symmetric(horizontal: 1.0),
+                            decoration: BoxDecoration(color: customAmber),
+                            child: AspectRatio(
+                              aspectRatio: 8 / 5,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    fit: BoxFit.fitWidth,
+                                    alignment: FractionalOffset.topCenter,
+                                    image: Image.network(s.data.poster).image,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else
+                          return CircularProgressIndicator();
+                      },
+                    );
+                  } else
+                    return CircularProgressIndicator();
+                }).toList(),
               ),
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  child: Stack(children: [
-                    Container(
-                      height: 300,
-                      width: 300,
-                      child: FittedBox(
-                        child: Image.network(snapshot.data[index].poster),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    Text(snapshot.data[index].title),
-                  ]),
-                );
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          return CircularProgressIndicator();
-        },
-      ),*/
-      //),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 60,
+              decoration: BoxDecoration(
+                color: customViolet,
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              padding: EdgeInsets.all(16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Top Rated",
+                  style: TextStyle(
+                      color: customAmber,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 9 / 12, crossAxisCount: 3),
+                  itemCount: topRatedMovies.length,
+                  itemBuilder: (context, index) {
+                    return FutureBuilder(
+                        future: topRatedMovies[index],
+                        builder: (c, s) {
+                          if (topRatedMovies.isEmpty) {
+                            return Center(child: CircularProgressIndicator());
+                          } else {
+                            if (s.data != null) {
+                              return Card(
+                                child: InkWell(
+                                  child: Stack(children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: Image.network(s.data.poster)
+                                                .image),
+                                      ),
+                                    ),
+                                    Container(
+                                        height: 40,
+                                        color: Color.fromRGBO(0, 0, 0, 0.5),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.star,
+                                                color: customAmber),
+                                            Text(
+                                              (index + 1).toString(),
+                                              style: TextStyle(
+                                                color: customAmber,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            )
+                                          ],
+                                        )),
+                                  ]),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                MovieSheet(s.data)));
+                                  },
+                                ),
+                              );
+                            } else
+                              return Center(child: CircularProgressIndicator());
+                          }
+                        });
+                  }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-}
-// Example how to get items from fire base
-// body: StreamBuilder(
-//   stream: db.collection('tareas').snapshots(),
-//   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//     // Construir un widget en función de los datos
-//     if (!snapshot.hasData) {
-//       return Center(
-//         child: CircularProgressIndicator(),
-//       );
-//     }
-//     List<DocumentSnapshot> docs = snapshot.data.docs;
-//     return ListView.builder(
-//       itemCount: docs.length,
-//       itemBuilder: (context, index) {
-//         Map<String, dynamic> data = docs[index].data();
-//         return ListTile(
-//           leading: Checkbox(
-//             value: data['done'],
-//             onChanged: (value) {
-//               db
-//                   .collection('tareas')
-//                   .doc(docs[index].id)
-//                   .update({'done': value});
-//             },
-//           ),
-//           title: Text(data['what']),
-//           onLongPress: () {
-//             db.collection('tareas').doc(docs[index].id).delete();
-//           },
-//         );
-//       },
-//     );
-//   },
-// ),
+  List<Future<Movie>> getCarrouselMovies() {
+    List<Future<Movie>> carMovies = [];
+    carMovies.add(Movie.fetchMovieByTitle('The Godfather'));
+    carMovies.add(Movie.fetchMovieByTitle('Pokemon'));
+    carMovies.add(Movie.fetchMovieByTitle('Spider-Man'));
+    carMovies.add(Movie.fetchMovieByTitle('Toy Story'));
+    carMovies.add(Movie.fetchMovieByTitle('The Simpsons'));
+    return carMovies;
+  }
 
+  List<Future<Movie>> _getTopMovies() {
+    List<Future<Movie>> fMovies = [];
+    Map<String, num> aux = Map<String, num>();
+    Stream<QuerySnapshot> snapshot =
+        FirebaseFirestore.instance.collection('films').snapshots();
 
-class _Carousel extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-      return Container(
-        child: CarouselSlider(
-        options: CarouselOptions(
-           height: 200,
-           autoPlay: true,
-           aspectRatio: 16/9,
-           ),
-        items: [1,2,3,4,5].map((i) {
-          return Builder(
-              builder: (BuildContext context) {
-                return Container(
-                 width: MediaQuery.of(context).size.width,
-                 margin: EdgeInsets.symmetric(horizontal: 1.0),
-                 decoration: BoxDecoration(
-                    color: customAmber
-                  ),
-                 child: Text('Movie $i', style: TextStyle(fontSize: 16.0),
-                 textAlign: TextAlign.center,)
-               );
-              },
-            );
-         }).toList(),
-        ),
-      ); 
+    snapshot.forEach((element) {
+      List<DocumentSnapshot> docs = element.docs;
+      if (docs.length == 0) return null;
+      docs.forEach(
+        (element) {
+          setState(() {
+            if (element.data()['Average'] != null) {
+              aux[element.id] = num.parse(element.data()['Average']);
+            }
+          });
+        },
+      );
+      while (aux != null) {
+        String mostAverageMovie = aux.keys.first;
+        num beforeAverage = aux[mostAverageMovie];
+        aux.forEach((key, value) {
+          if (value > beforeAverage) mostAverageMovie = key;
+        });
+        setState(() {
+          aux.remove(mostAverageMovie);
+          if (fMovies.length < 9)
+            fMovies.add(Movie.fetchMovie(mostAverageMovie));
+          else
+            return fMovies;
+        });
+      }
+    });
+    return fMovies;
   }
 }
-
-/*class _Tabs extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      child: DefaultTabController(
-  length: 2,
-  child: Scaffold(
-    body:TabBar(
-        tabs: [
-          Tab(),
-          Tab(),
-        ],
-      ),
-    ),
-  TabBarView(
-  children: [
-    Icon(Icons.directions_car),
-    Icon(Icons.directions_transit),
-  ],
-  ),
-),
-);
-}
-}
-*/

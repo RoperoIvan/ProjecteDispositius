@@ -492,35 +492,27 @@ class _MovieSheetState extends State<MovieSheet> {
         .doc(widget.movie.id)
         .get()
         .then((value) {
-      if (value == null) {
+      if (!value.exists) {
         FirebaseFirestore.instance
             .collection('films')
             .doc(widget.movie.id)
-            .collection('info')
-            .doc('rates')
             .set(filmRate);
         setAverage();
       } else {
         FirebaseFirestore.instance
             .collection('films')
             .doc(widget.movie.id)
-            .collection('info')
-            .doc('rates')
             .get()
             .then((value) {
           if (value.exists) {
             FirebaseFirestore.instance
                 .collection('films')
                 .doc(widget.movie.id)
-                .collection('info')
-                .doc('rates')
                 .update(filmRate);
           } else {
             FirebaseFirestore.instance
                 .collection('films')
                 .doc(widget.movie.id)
-                .collection('info')
-                .doc('rates')
                 .set(filmRate);
           }
           setAverage();
@@ -534,8 +526,6 @@ class _MovieSheetState extends State<MovieSheet> {
     FirebaseFirestore.instance
         .collection('films')
         .doc(widget.movie.id)
-        .collection('info')
-        .doc('rates')
         .get()
         .then((value) {
       if (value.exists) {
@@ -556,8 +546,6 @@ class _MovieSheetState extends State<MovieSheet> {
         FirebaseFirestore.instance
             .collection('films')
             .doc(widget.movie.id)
-            .collection('info')
-            .doc('rates')
             .update(average);
       }
     });
@@ -671,7 +659,7 @@ class _MovieSheetState extends State<MovieSheet> {
               .doc(currentUser.email)
               .collection('films')
               .doc(widget.movie.id)
-              .set({
+              .update({
             'Reviews': FieldValue.arrayUnion([newReviewItem])
           });
         }
@@ -785,11 +773,7 @@ class _AverageRate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('films')
-            .doc(widget.movie.id)
-            .collection('info')
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('films').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           // Construir un widget en función de los datos
           if (!snapshot.hasData) {
@@ -799,7 +783,7 @@ class _AverageRate extends StatelessWidget {
           }
           List<DocumentSnapshot> docs = snapshot.data.docs;
           if (docs.isEmpty)
-            return Text('0.0',
+            return Text('0',
                 style: TextStyle(
                   color: customAmber,
                   fontSize: 25,
@@ -808,26 +792,37 @@ class _AverageRate extends StatelessWidget {
           num i = 0;
           bool passRates = false;
           docs.forEach((element) {
-            if (element.id == 'rates') passRates = true;
+            if (element.id == widget.movie.id) passRates = true;
 
             if (!passRates) ++i;
           });
-          if (docs[i].data()['Average'] != null)
+          if (i == docs.length) {
             return Text(
-              docs[i].data()['Average'],
+              "0",
               style: TextStyle(
                 color: customAmber,
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
             );
-          else
-            return Text('0.0',
+          } else {
+            if (docs[i].data()['Average'] != null)
+              return Text(
+                docs[i].data()['Average'],
                 style: TextStyle(
                   color: customAmber,
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
-                ));
+                ),
+              );
+            else
+              return Text('0',
+                  style: TextStyle(
+                    color: customAmber,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ));
+          }
         });
   }
 }
