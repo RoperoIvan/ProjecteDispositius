@@ -9,8 +9,7 @@ import 'sign_up_screen.dart';
 class SignInScreen extends StatefulWidget {
   @override
   UserApp user;
-  SignInScreen({UserApp user})
-  {
+  SignInScreen({UserApp user}) {
     this.user = user;
   }
 
@@ -21,8 +20,7 @@ class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _username, _password;
   UserApp userApp;
 
-  _SignInScreenState({@required UserApp user})
-  {
+  _SignInScreenState({@required UserApp user}) {
     userApp = user;
   }
 
@@ -104,7 +102,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 color: customAmber,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(50),
-                  ),
+                ),
                 height: 50,
                 child: Text(
                   'Sign-in',
@@ -149,8 +147,11 @@ class _SignInScreenState extends State<SignInScreen> {
           .collection('users')
           .doc(userApp.userEmail)
           .set(newUser);
-      
-      FirebaseAuth.instance.currentUser.updateProfile(displayName: userApp.userEmail);
+
+      FirebaseAuth.instance.currentUser.updateProfile(
+          displayName: userApp.userEmail,
+          photoURL:
+              'https://firebasestorage.googleapis.com/v0/b/projectmobile-a4ec9.appspot.com/o/uploads%2Fprofile.jpg?alt=media&token=e8351801-bc91-486f-946d-588215fc7cd0');
     });
   }
 

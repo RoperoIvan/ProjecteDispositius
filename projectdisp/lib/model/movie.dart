@@ -101,7 +101,11 @@ class Movie {
     }
     String firstGenre = genre.substring(0, genre.indexOf(','));
     genres.add(firstGenre);
-    genres.add(genre.substring(firstGenre.length + 2, genre.length));
+    if (genre.indexOf(',', firstGenre.length + 2) == -1)
+      genres.add(genre.substring(firstGenre.length + 2, genre.length));
+    else
+      genres.add(genre.substring(
+          firstGenre.length + 2, genre.indexOf(',', firstGenre.length + 2)));
 
     return genres;
   }

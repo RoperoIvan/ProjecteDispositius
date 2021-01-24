@@ -157,9 +157,11 @@ class _MovieSheetState extends State<MovieSheet> {
                                           RateScreen(widget.movie),
                                     ))
                                         .then((value) {
-                                      _rate = value;
-                                      _saveRateInfoIntoFireBase(
-                                          value.toString());
+                                      if (value != null) {
+                                        _rate = value;
+                                        _saveRateInfoIntoFireBase(
+                                            value.toString());
+                                      }
                                     });
                                   }),
                             ),
@@ -223,7 +225,6 @@ class _MovieSheetState extends State<MovieSheet> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         MovieTeamText(
-                                          //This method has to be changed in next delivery
                                           position: 'Director:',
                                           name: Movie.cropStrings(
                                               widget.movie.director, 18,
@@ -373,25 +374,36 @@ class _MovieSheetState extends State<MovieSheet> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              actualRev[index]['Title'],
-                                              style: TextStyle(
-                                                color: customAmber,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
+                                        Container(
+                                          height: 130,
+                                          width: 220,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Flexible(
+                                                flex: 1,
+                                                child: Text(
+                                                  actualRev[index]['Title'],
+                                                  style: TextStyle(
+                                                    color: customAmber,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                            Text(
-                                              actualRev[index]['Description'],
-                                              style: TextStyle(
-                                                color: customAmber,
+                                              Flexible(
+                                                flex: 1,
+                                                child: Text(
+                                                  actualRev[index]
+                                                      ['Description'],
+                                                  style: TextStyle(
+                                                    color: customAmber,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                         Column(
                                           children: [

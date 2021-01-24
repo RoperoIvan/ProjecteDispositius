@@ -61,6 +61,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           children: [
             SizedBox(height: 50),
             TextField(
+              style: TextStyle(color: Colors.white),
               controller: _titleController,
               decoration: InputDecoration(
                 focusedBorder: OutlineInputBorder(
@@ -95,6 +96,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
             SizedBox(height: 50),
             TextField(
+              style: TextStyle(color: Colors.white),
               controller: _bodyController,
               maxLines: 10,
               obscureText: false,

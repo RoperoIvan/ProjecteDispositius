@@ -257,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                                     Movie.cropStrings(
                                                                         s.data
                                                                             .title,
-                                                                        26,
+                                                                        22,
                                                                         threeDots:
                                                                             true),
                                                                     style: TextStyle(
@@ -341,27 +341,39 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      reviews[index]['Title'],
-                                                      style: TextStyle(
-                                                        color: customAmber,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
+                                                Container(
+                                                  height: 130,
+                                                  width: 200,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Flexible(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          reviews[index]
+                                                              ['Title'],
+                                                          style: TextStyle(
+                                                            color: customAmber,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 18,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    Text(
-                                                      reviews[index]
-                                                          ['Description'],
-                                                      style: TextStyle(
-                                                        color: customAmber,
+                                                      Flexible(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          reviews[index]
+                                                              ['Description'],
+                                                          style: TextStyle(
+                                                            color: customAmber,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                                 Column(
                                                   children: [
