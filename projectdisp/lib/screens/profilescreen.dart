@@ -290,12 +290,22 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                                     context)
                                                                 .push(
                                                                     MaterialPageRoute(
-                                                                  builder: (context) =>
+                                                              builder:
+                                                                  (context) =>
                                                                       MovieSheet(
                                                                           movie),
-                                                                ))
-                                                                .then(
-                                                                    (value) {});
+                                                            ))
+                                                                .then((value) {
+                                                              futureMovies =
+                                                                  _getFavMovies();
+                                                              futureReviews =
+                                                                  _getReviews();
+                                                              futureReviews
+                                                                  .then(
+                                                                      (value) {
+                                                                reviews = value;
+                                                              });
+                                                            });
                                                           } else {
                                                             return CircularProgressIndicator();
                                                           }
@@ -454,13 +464,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       setState(() {
         docs.forEach(
           (el) {
-           if(el.data().isNotEmpty && el.data()['Reviews'] != null)
-           {
+            if (el.data().isNotEmpty && el.data()['Reviews'] != null) {
               for (Map<String, dynamic> review in el.data()['Reviews']) {
                 newReviews.add(review);
               }
-             }  //fMovies.add(Movie.fetchMovie(element.id));
-            
+            } //fMovies.add(Movie.fetchMovie(element.id));
           },
         );
       });
